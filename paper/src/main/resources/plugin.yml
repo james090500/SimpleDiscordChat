@@ -1,0 +1,5 @@
+main: com.james090500.sdc.paper.SDCPaper
+name: SimpleDiscordChat
+version: 0.0.1
+api-version: 1.18
+author: james090500

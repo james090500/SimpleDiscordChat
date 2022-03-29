@@ -1,0 +1,11 @@
+# Intelij Stuff
+.idea
+*.iml
+.idea
+
+# Runs
+run/
+
+# Target
+common/target/
+paper/target/
