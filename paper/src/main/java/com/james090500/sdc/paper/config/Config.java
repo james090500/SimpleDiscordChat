@@ -36,10 +36,25 @@ public class Config {
         YamlConfiguration yamlConfig = YamlConfiguration.loadConfiguration(configFile);
         //Tempoary filler
         SettingsConfig settingsConfig = new SettingsConfig();
+
         settingsConfig.botToken = yamlConfig.getString("botToken");
         settingsConfig.chatChannel = yamlConfig.getString("chatChannel");
+
         settingsConfig.formatMinecraft = yamlConfig.getString("format.minecraft");
         settingsConfig.formatDiscord = yamlConfig.getString("format.discord");
+
+        settingsConfig.firstJoin.enabled = yamlConfig.getBoolean("firstJoin.enabled");
+        settingsConfig.firstJoin.color = yamlConfig.getInt("firstJoin.color");
+        settingsConfig.firstJoin.message = yamlConfig.getString("firstJoin.message");
+
+        settingsConfig.join.enabled = yamlConfig.getBoolean("join.enabled");
+        settingsConfig.join.color = yamlConfig.getInt("join.color");
+        settingsConfig.join.message = yamlConfig.getString("join.message");
+
+        settingsConfig.leave.enabled = yamlConfig.getBoolean("leave.enabled");
+        settingsConfig.leave.color = yamlConfig.getInt("leave.color");
+        settingsConfig.leave.message = yamlConfig.getString("leave.message");
+
         Configs.setSettingsConfig(settingsConfig);
     }
 }

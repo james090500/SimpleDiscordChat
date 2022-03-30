@@ -17,3 +17,18 @@ chatChannel: ""
 format:
   minecraft: "&7[&aD&7]&r <%username%> %message%"
   discord: "%player_nick%: %message%"
+
+## First Join, Join and Leave messages
+# %username = Minecraft username
+firstJoin:
+  enabled: true
+  color: 16711915
+  message: ":tada: %username% has joined the server for the first time! :tada:"
+join:
+  enabled: true
+  color: 65280
+  message: "%username% has joined the server"
+leave:
+  enabled: true
+  color: 16711680
+  message: "%username% has left the server"

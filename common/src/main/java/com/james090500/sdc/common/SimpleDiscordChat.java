@@ -4,6 +4,7 @@ import com.james090500.sdc.common.api.Event;
 import com.james090500.sdc.common.api.events.Subscribe;
 import com.james090500.sdc.common.config.Configs;
 import com.james090500.sdc.common.handlers.ChatHandler;
+import com.james090500.sdc.common.helpers.ServerCache;
 import com.james090500.sdc.common.listeners.MessageListener;
 import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
@@ -13,9 +14,11 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import javax.security.auth.login.LoginException;
+import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -50,7 +53,10 @@ public class SimpleDiscordChat {
     /**
      * Enable the plugin
      */
-    public void onEnable() {
+    public void onEnable(File dataFolder) {
+        //Set the plugin directory
+        new ServerCache().init(dataFolder);
+
         //Check vital config stuff
         if(Configs.getSettingsConfig().botToken == null || Configs.getSettingsConfig().chatChannel == null) {
             System.out.println("Fatal error");
@@ -79,7 +85,7 @@ public class SimpleDiscordChat {
         }
 
         //Start Message
-        new ChatHandler("Server Started");
+        new ChatHandler(":green_circle: **Server Started**");
     }
 
     /**
@@ -87,7 +93,7 @@ public class SimpleDiscordChat {
      */
     public void onDisable() {
         if(instance.jda != null) {
-            new ChatHandler("Server Stopped");
+            new ChatHandler(":red_circle: **Server Stopped**");
             instance.jda.shutdown();
         }
     }
@@ -97,7 +103,7 @@ public class SimpleDiscordChat {
      * @param listener The listener
      */
     public void registerListener(Object listener) {
-        //Make sure theres a subscribe event otherwise there's nothing to call
+        //Make sure there's a subscribe event otherwise there's nothing to call
         int subbedMethods = 0;
         for(Method method : listener.getClass().getMethods()) {
             if(method.isAnnotationPresent(Subscribe.class)) {

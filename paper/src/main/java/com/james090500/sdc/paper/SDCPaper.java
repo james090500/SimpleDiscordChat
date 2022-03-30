@@ -5,7 +5,6 @@ import com.james090500.sdc.paper.config.Config;
 import com.james090500.sdc.paper.listeners.ChatListener;
 import com.james090500.sdc.paper.listeners.JoinLeaveListener;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class SDCPaper extends JavaPlugin {
@@ -26,7 +25,7 @@ public class SDCPaper extends JavaPlugin {
         SimpleDiscordChat.getInstance().registerListener(new ChatListener());
 
         //Start the common enable
-        SimpleDiscordChat.getInstance().onEnable();
+        SimpleDiscordChat.getInstance().onEnable(getDataFolder());
 
         //Commands
     }
