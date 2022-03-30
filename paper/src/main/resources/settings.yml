@@ -1,2 +1,19 @@
+## Bot Settings
+# The token of your bot
 botToken: ""
+# The channel of the bot
 chatChannel: ""
+
+## Chat Formats
+# Minecraft section (This is what displays in minecraft)
+# %username% = Discord username
+# %message% = Discord message
+#
+# Discord section (This is what displays in discord)
+# %player_username% = Players Username
+# %player_nick% = Players Display Name (usually their nickname)
+# %player_uuid% = Players UUID
+# %message% = Chat message
+format:
+  minecraft: "&7[&aD&7]&r <%username%> %message%"
+  discord: "%player_nick%: %message%"

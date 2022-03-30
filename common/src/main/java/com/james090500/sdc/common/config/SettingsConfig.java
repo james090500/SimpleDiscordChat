@@ -5,4 +5,7 @@ public class SettingsConfig {
     public String botToken;
     public String chatChannel;
 
+    public String formatMinecraft;
+    public String formatDiscord;
+
 }

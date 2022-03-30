@@ -38,6 +38,8 @@ public class Config {
         SettingsConfig settingsConfig = new SettingsConfig();
         settingsConfig.botToken = yamlConfig.getString("botToken");
         settingsConfig.chatChannel = yamlConfig.getString("chatChannel");
+        settingsConfig.formatMinecraft = yamlConfig.getString("format.minecraft");
+        settingsConfig.formatDiscord = yamlConfig.getString("format.discord");
         Configs.setSettingsConfig(settingsConfig);
     }
 }
