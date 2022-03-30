@@ -3,9 +3,11 @@
 *.iml
 .idea
 
+#Gradle
+.gradle/
+
 # Runs
 run/
 
 # Target
-common/target/
-paper/target/
+**/build/

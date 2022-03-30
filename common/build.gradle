@@ -1,0 +1,13 @@
+plugins {
+    id 'java'
+    id "io.freefair.lombok" version "6.4.1"
+}
+
+repositories {
+    mavenCentral()
+    maven { url "https://m2.dv8tion.net/releases" }
+}
+
+dependencies {
+    implementation("net.dv8tion:JDA:5.0.0-alpha.9")
+}

@@ -33,7 +33,7 @@ public class Config {
         }
 
         //Configs.setSettingsConfig(stuff);
-        YamlConfiguration yamlConfig = YamlConfiguration.loadConfiguration(new File(pluginFolder, "config.yml"));
+        YamlConfiguration yamlConfig = YamlConfiguration.loadConfiguration(configFile);
         //Tempoary filler
         SettingsConfig settingsConfig = new SettingsConfig();
         settingsConfig.botToken = yamlConfig.getString("botToken");
