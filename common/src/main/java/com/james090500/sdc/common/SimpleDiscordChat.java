@@ -18,7 +18,6 @@ import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -54,19 +53,19 @@ public class SimpleDiscordChat {
      * Enable the plugin
      */
     public void onEnable(File dataFolder) {
-        //Set the plugin directory
-        new ServerCache().init(dataFolder);
+        Configs.init(dataFolder);
+        ServerCache.init(dataFolder);
 
         //Check vital config stuff
-        if(Configs.getSettingsConfig().botToken == null || Configs.getSettingsConfig().chatChannel == null) {
-            System.out.println("Fatal error");
+        if(Configs.getSettingsConfig() == null || Configs.getSettingsConfig().getBotToken() == null || Configs.getSettingsConfig().getChatChannel() == null) {
+            System.out.printf("Fatal error");
             return;
         }
 
         //Build the JDA Config
         JDABuilder jdaBuilder = JDABuilder.create(activeIntents)
                 .disableCache(disabledCache)
-                .setToken(Configs.getSettingsConfig().botToken);
+                .setToken(Configs.getSettingsConfig().getBotToken());
 
         //Start the JDA Instance
         try {
@@ -77,7 +76,7 @@ public class SimpleDiscordChat {
             //Await ready, can we async this?
             instance.jda.awaitReady();
 
-            instance.chatChannel = instance.jda.getTextChannelById(Configs.getSettingsConfig().chatChannel);
+            instance.chatChannel = instance.jda.getTextChannelById(Configs.getSettingsConfig().getChatChannel());
         } catch (LoginException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {

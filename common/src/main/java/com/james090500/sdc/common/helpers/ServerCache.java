@@ -3,7 +3,6 @@ package com.james090500.sdc.common.helpers;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -19,7 +18,7 @@ public final class ServerCache {
     private final Gson GSON = new Gson();
     private Path jsonPath;
 
-    @Getter private static ServerCache instance;
+    @Getter private static ServerCache instance = new ServerCache();
 
     /**
      * A list of players who got "caught" up by this plugin,
@@ -31,21 +30,20 @@ public final class ServerCache {
      * Load the file
      * @param dataFolder The plugin working directory
      */
-    public void init(File dataFolder) {
-        instance = this;
-        this.jsonPath = Path.of(dataFolder + "/users.json");
+    public static void init(File dataFolder) {
+        instance.jsonPath = Path.of(dataFolder + "/users.json");
 
         try {
             //Make file if it doesn't exist
-            if(!jsonPath.toFile().exists()) {
-                Writer writer = new FileWriter(jsonPath.toFile());
-                GSON.toJson(registeredPlayers, writer);
+            if(!instance.jsonPath.toFile().exists()) {
+                Writer writer = new FileWriter(instance.jsonPath.toFile());
+                instance.GSON.toJson(instance.registeredPlayers, writer);
                 writer.close();
             }
 
             //Load file to list
-            Reader reader = new FileReader(jsonPath.toFile());
-            this.registeredPlayers = new Gson().fromJson(reader, new TypeToken<HashSet<UUID>>(){}.getType());
+            Reader reader = new FileReader(instance.jsonPath.toFile());
+            instance.registeredPlayers = new Gson().fromJson(reader, new TypeToken<HashSet<UUID>>(){}.getType());
             reader.close();
         } catch (IOException e) {
             e.printStackTrace();
