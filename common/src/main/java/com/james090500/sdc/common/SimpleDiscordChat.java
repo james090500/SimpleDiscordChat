@@ -21,9 +21,11 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
 
 public class SimpleDiscordChat {
 
+    public static final String AVATAR = "https://minecraftapi.net/api/v2/profile/%s/avatar?size=128&overlay=true#%s";
     //Public variables
     @Getter private static SimpleDiscordChat instance = new SimpleDiscordChat();
     @Getter private TextChannel chatChannel;
@@ -84,7 +86,7 @@ public class SimpleDiscordChat {
         }
 
         //Start Message
-        new ChatHandler(":green_circle: **Server Started**");
+        ChatHandler.sendMessage(":green_circle: **Server Started**");
     }
 
     /**
@@ -92,7 +94,7 @@ public class SimpleDiscordChat {
      */
     public void onDisable() {
         if(instance.jda != null) {
-            new ChatHandler(":red_circle: **Server Stopped**");
+            ChatHandler.sendMessage(":red_circle: **Server Stopped**");
             instance.jda.shutdown();
         }
     }

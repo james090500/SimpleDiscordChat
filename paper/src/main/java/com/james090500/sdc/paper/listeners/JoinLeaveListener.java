@@ -1,8 +1,7 @@
 package com.james090500.sdc.paper.listeners;
 
 import com.james090500.sdc.common.handlers.JoinLeaveHandler;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import io.papermc.paper.text.PaperComponents;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,7 +17,8 @@ public class JoinLeaveListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        new JoinLeaveHandler(player.getUniqueId(), getUsername(player.displayName())).join();
+        String username = PaperComponents.plainTextSerializer().serialize(player.displayName());
+        new JoinLeaveHandler(player.getUniqueId(), username).join();
     }
 
     /**
@@ -28,15 +28,7 @@ public class JoinLeaveListener implements Listener {
     @EventHandler
     public void onLeave(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        new JoinLeaveHandler(player.getUniqueId(), getUsername(player.displayName())).leave();
-    }
-
-    /**
-     * Converts a componenet to a string
-     * @param component The displayName componenet
-     * @return The display name as a string
-     */
-    private String getUsername(Component component) {
-        return PlainTextComponentSerializer.plainText().serialize(component);
+        String username = PaperComponents.plainTextSerializer().serialize(player.displayName());
+        new JoinLeaveHandler(player.getUniqueId(), username).leave();
     }
 }

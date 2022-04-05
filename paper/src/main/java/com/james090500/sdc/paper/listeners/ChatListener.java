@@ -32,12 +32,14 @@ public class ChatListener implements Listener {
         String uuid = sender.getUniqueId().toString();
         String chatMessage = PlainTextComponentSerializer.plainText().serialize(event.message());
 
+        //Set the variables
         chatFormat = chatFormat.replaceAll("%player_username%", username);
         chatFormat = chatFormat.replaceAll("%player_nick%", displayName);
         chatFormat = chatFormat.replaceAll("%player_uuid%", uuid);
         chatFormat = chatFormat.replaceAll("%message%", chatMessage);
 
-        new ChatHandler(chatFormat);
+        //Send to discord
+        ChatHandler.sendMessage(chatFormat);
     }
 
     /**
@@ -53,6 +55,7 @@ public class ChatListener implements Listener {
         String username = event.getAuthorName();
         String chatMessage = event.getMessage();
 
+        //Set the variables
         chatFormat = chatFormat.replaceAll("%username%", username);
         chatFormat = chatFormat.replaceAll("%message%", chatMessage);
 

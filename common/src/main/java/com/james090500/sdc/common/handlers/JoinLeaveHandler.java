@@ -22,7 +22,7 @@ public class JoinLeaveHandler {
         this.uuid = uuid;
         this.username = username;
 
-        this.avatar = String.format("https://minecraftapi.net/api/v1/profile/%s/avatar?size=128&overlay=true#%s", uuid, System.currentTimeMillis());
+        this.avatar = String.format(SimpleDiscordChat.AVATAR, uuid, System.currentTimeMillis());
     }
 
     /**
@@ -40,7 +40,7 @@ public class JoinLeaveHandler {
             //Check if we want first join messages
             if(!Configs.getSettingsConfig().getFirstJoin().isEnabled()) return;
 
-            //Build the first join message
+            //Add the first join colour
             joinEmbed.setColor(Configs.getSettingsConfig().getFirstJoin().getColor());
 
             //Build the message
@@ -48,9 +48,13 @@ public class JoinLeaveHandler {
             joinEmbed.setAuthor(message, null, avatar);
         } else {
             //Check if we want regular join messages
-            if(!Configs.getSettingsConfig().getFirstJoin().isEnabled()) return;
+            if(!Configs.getSettingsConfig().getJoin().isEnabled()) return;
 
-            String message = Configs.getSettingsConfig().getFirstJoin().getMessage().replaceAll("%username%", username);
+            //Add the join colour
+            joinEmbed.setColor(Configs.getSettingsConfig().getJoin().getColor());
+
+            //Build the message
+            String message = Configs.getSettingsConfig().getJoin().getMessage().replaceAll("%username%", username);
             joinEmbed.setAuthor(message, null, avatar);
         }
 

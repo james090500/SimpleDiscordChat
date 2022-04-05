@@ -13,10 +13,12 @@ public class SettingsConfig {
         @Getter public String discord;
     }
 
-    @Getter public JoinLeaveFormat firstJoin;
-    @Getter public JoinLeaveFormat join;
-    @Getter public JoinLeaveFormat leave;
-    public static class JoinLeaveFormat {
+    @Getter public EmbedFormat firstJoin;
+    @Getter public EmbedFormat join;
+    @Getter public EmbedFormat leave;
+    @Getter public EmbedFormat advancement;
+
+    public static class EmbedFormat {
         @Getter public boolean enabled;
         @Getter public int color;
         @Getter public String message;

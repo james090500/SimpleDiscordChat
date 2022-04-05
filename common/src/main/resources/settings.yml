@@ -23,7 +23,7 @@ format:
 firstJoin:
   enabled: true
   color: 16711915
-  message: ":tada: %username% has joined the server for the first time! :tada:"
+  message: "\uD83C\uDF89 %username% has joined the server for the first time! \uD83C\uDF89"
 join:
   enabled: true
   color: 65280
@@ -32,3 +32,9 @@ leave:
   enabled: true
   color: 16711680
   message: "%username% has left the server"
+
+## Advancements
+advancement:
+  enabled: true
+  color: 16777045
+  message: "%username% has made the advancement %advancement%!"

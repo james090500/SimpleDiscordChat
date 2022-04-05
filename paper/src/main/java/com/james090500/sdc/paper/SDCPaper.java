@@ -1,6 +1,7 @@
 package com.james090500.sdc.paper;
 
 import com.james090500.sdc.common.SimpleDiscordChat;
+import com.james090500.sdc.paper.listeners.AdvancementListener;
 import com.james090500.sdc.paper.listeners.ChatListener;
 import com.james090500.sdc.paper.listeners.JoinLeaveListener;
 import lombok.Getter;
@@ -16,6 +17,7 @@ public class SDCPaper extends JavaPlugin {
         instance = this;
 
         //Register listeners
+        getServer().getPluginManager().registerEvents(new AdvancementListener(), this);
         getServer().getPluginManager().registerEvents(new ChatListener(), this);
         getServer().getPluginManager().registerEvents(new JoinLeaveListener(), this);
         SimpleDiscordChat.getInstance().registerListener(new ChatListener());
