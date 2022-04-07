@@ -38,3 +38,13 @@ advancement:
   enabled: true
   color: 16777045
   message: "%username% has made the advancement %advancement%!"
+
+## Linking and Syncing
+# If linking is true, the bot will respond to DMs for codes obtained with /discord link
+# If syncgroup is true, the bot will sync users groups to relative ones in discord
+# If syncnames is true, the bot will sync users nickname/username to relative ones in discord
+# The bot will still try sync if linking is false, this allows you to use the bot on multiple small servers
+# You will also need to configure the advanced options below these three
+linking: true
+syncGroups: true
+syncUsernames: true
