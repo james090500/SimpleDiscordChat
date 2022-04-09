@@ -1,17 +1,17 @@
 package com.james090500.sdc.common.handlers;
 
 import com.james090500.sdc.common.SimpleDiscordChat;
-import com.james090500.sdc.common.config.Configs;
-import com.james090500.sdc.common.helpers.ServerCache;
+import com.james090500.sdc.common.config.SettingsConfig;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.util.UUID;
 
 public class JoinLeaveHandler {
 
-    private String avatar;
-    private UUID uuid;
-    private String username;
+    private final SettingsConfig settingsConfig = SimpleDiscordChat.getInstance().getConfigs().getSettingsConfig();
+    private final String avatar;
+    private final UUID uuid;
+    private final String username;
 
     /**
      * The construct for the join leave handler
@@ -33,28 +33,28 @@ public class JoinLeaveHandler {
         EmbedBuilder joinEmbed = new EmbedBuilder();
 
         //Check if the player has already joined
-        if(!ServerCache.getInstance().isPlayerRegistered(uuid)) {
+        if(SimpleDiscordChat.getInstance().getSqlHelper().getPlayer(uuid) == null) {
             //Lets register the player
-            ServerCache.getInstance().registerPlayer(uuid);
+            SimpleDiscordChat.getInstance().getSqlHelper().updatePlayer(uuid, null);
 
             //Check if we want first join messages
-            if(!Configs.getSettingsConfig().getFirstJoin().isEnabled()) return;
+            if(!settingsConfig.getFirstJoin().isEnabled()) return;
 
             //Add the first join colour
-            joinEmbed.setColor(Configs.getSettingsConfig().getFirstJoin().getColor());
+            joinEmbed.setColor(settingsConfig.getFirstJoin().getColor());
 
             //Build the message
-            String message = Configs.getSettingsConfig().getFirstJoin().getMessage().replaceAll("%username%", username);
+            String message = settingsConfig.getFirstJoin().getMessage().replaceAll("%username%", username);
             joinEmbed.setAuthor(message, null, avatar);
         } else {
             //Check if we want regular join messages
-            if(!Configs.getSettingsConfig().getJoin().isEnabled()) return;
+            if(!settingsConfig.getJoin().isEnabled()) return;
 
             //Add the join colour
-            joinEmbed.setColor(Configs.getSettingsConfig().getJoin().getColor());
+            joinEmbed.setColor(settingsConfig.getJoin().getColor());
 
             //Build the message
-            String message = Configs.getSettingsConfig().getJoin().getMessage().replaceAll("%username%", username);
+            String message = settingsConfig.getJoin().getMessage().replaceAll("%username%", username);
             joinEmbed.setAuthor(message, null, avatar);
         }
 
@@ -67,12 +67,12 @@ public class JoinLeaveHandler {
      */
     public void leave() {
         //Check if we want leave messages to show
-        if(!Configs.getSettingsConfig().getLeave().isEnabled()) return;
+        if(!settingsConfig.getLeave().isEnabled()) return;
 
         //Build the embed
         EmbedBuilder joinEmbed = new EmbedBuilder();
-        joinEmbed.setColor(Configs.getSettingsConfig().getLeave().getColor());
-        String message = Configs.getSettingsConfig().getLeave().getMessage().replaceAll("%username%", username);
+        joinEmbed.setColor(settingsConfig.getLeave().getColor());
+        String message = settingsConfig.getLeave().getMessage().replaceAll("%username%", username);
         joinEmbed.setAuthor(message, null, avatar);
 
         //Send it to discord

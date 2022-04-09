@@ -2,7 +2,6 @@ package com.james090500.sdc.common.listeners;
 
 import com.james090500.sdc.common.SimpleDiscordChat;
 import com.james090500.sdc.common.api.events.DiscordMessageEvent;
-import com.james090500.sdc.common.config.Configs;
 import com.james090500.sdc.common.handlers.LinkHandler;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
@@ -33,7 +32,7 @@ public class MessageListener extends ListenerAdapter {
         //Handle DM vs Guide and make sure its the right channel
         if(event.isFromType(ChannelType.PRIVATE)) {
             LinkHandler.handle(user, message);
-        } else if(event.getChannel().getId().equals(Configs.getSettingsConfig().chatChannel)) {
+        } else if(event.getChannel().getId().equals(SimpleDiscordChat.getInstance().getConfigs().getSettingsConfig().getChatChannel())) {
             SimpleDiscordChat.getInstance().callEvent(new DiscordMessageEvent(
                     user.getName(),
                     message.getContentDisplay()

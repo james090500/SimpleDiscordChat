@@ -1,15 +1,15 @@
 package com.james090500.sdc.common.handlers;
 
 import com.james090500.sdc.common.SimpleDiscordChat;
-import com.james090500.sdc.common.config.Configs;
+import com.james090500.sdc.common.config.SettingsConfig;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.util.UUID;
 
 public class AdvancementHandler {
-    private String avatar;
-    private UUID uuid;
-    private String username;
+    private final String avatar;
+    private final UUID uuid;
+    private final String username;
 
     /**
      * The construct for the join leave handler
@@ -28,12 +28,13 @@ public class AdvancementHandler {
      */
     public void send(String advancement) {
         //Check if we want leave messages to show
-        if(!Configs.getSettingsConfig().getAdvancement().isEnabled()) return;
+        SettingsConfig settingsConfig = SimpleDiscordChat.getInstance().getConfigs().getSettingsConfig();
+        if(!settingsConfig.getAdvancement().isEnabled()) return;
 
         //Build the embed
         EmbedBuilder advancementEmbed = new EmbedBuilder();
-        advancementEmbed.setColor(Configs.getSettingsConfig().getAdvancement().getColor());
-        String message = Configs.getSettingsConfig().getAdvancement().getMessage().replaceAll("%username%", username); //todo placeholder this
+        advancementEmbed.setColor(settingsConfig.getAdvancement().getColor());
+        String message = settingsConfig.getAdvancement().getMessage().replaceAll("%username%", username); //todo placeholder this
         message = message.replaceAll("%advancement%", advancement); //todo placeholder this
         advancementEmbed.setAuthor(message, null, avatar);
 

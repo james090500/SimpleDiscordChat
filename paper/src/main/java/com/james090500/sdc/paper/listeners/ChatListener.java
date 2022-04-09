@@ -1,5 +1,6 @@
 package com.james090500.sdc.paper.listeners;
 
+import com.james090500.sdc.common.SimpleDiscordChat;
 import com.james090500.sdc.common.api.events.DiscordMessageEvent;
 import com.james090500.sdc.common.api.events.Subscribe;
 import com.james090500.sdc.common.config.Configs;
@@ -24,7 +25,7 @@ public class ChatListener implements Listener {
         Player sender = event.getPlayer();
 
         //Chat Format
-        String chatFormat = Configs.getSettingsConfig().getFormat().getDiscord();
+        String chatFormat = SimpleDiscordChat.getInstance().getConfigs().getSettingsConfig().getFormat().getDiscord();
 
         //Fill placeholders
         String username = sender.getName();
@@ -49,7 +50,7 @@ public class ChatListener implements Listener {
     @Subscribe
     public void onDiscordMessage(DiscordMessageEvent event) {
         //Chat Format
-        String chatFormat = Configs.getSettingsConfig().getFormat().getMinecraft();
+        String chatFormat = SimpleDiscordChat.getInstance().getConfigs().getSettingsConfig().getFormat().getMinecraft();
 
         //Fill placeholders
         String username = event.getAuthorName();

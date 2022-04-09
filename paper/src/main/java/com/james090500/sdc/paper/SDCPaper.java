@@ -13,6 +13,9 @@ public class SDCPaper extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        //Start the common enable
+        SimpleDiscordChat.getInstance().onEnable(getDataFolder());
+
         //Register instance
         instance = this;
 
@@ -21,9 +24,6 @@ public class SDCPaper extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ChatListener(), this);
         getServer().getPluginManager().registerEvents(new JoinLeaveListener(), this);
         SimpleDiscordChat.getInstance().registerListener(new ChatListener());
-
-        //Start the common enable
-        SimpleDiscordChat.getInstance().onEnable(getDataFolder());
 
         //Commands
     }

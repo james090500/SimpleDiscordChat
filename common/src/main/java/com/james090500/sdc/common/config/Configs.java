@@ -10,9 +10,9 @@ import java.nio.file.Files;
 
 public class Configs {
 
-    @Getter private static SettingsConfig settingsConfig;
+    @Getter private SettingsConfig settingsConfig;
 
-    public static void init(File dataFolder) {
+    public Configs(File dataFolder) {
         //Makes plugin folders if they don't exist
         File pluginFolder = dataFolder;
         if(!pluginFolder.exists()) {

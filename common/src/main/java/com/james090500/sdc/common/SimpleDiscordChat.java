@@ -3,8 +3,8 @@ package com.james090500.sdc.common;
 import com.james090500.sdc.common.api.Event;
 import com.james090500.sdc.common.api.events.Subscribe;
 import com.james090500.sdc.common.config.Configs;
+import com.james090500.sdc.common.config.SQLHelper;
 import com.james090500.sdc.common.handlers.ChatHandler;
-import com.james090500.sdc.common.helpers.ServerCache;
 import com.james090500.sdc.common.listeners.MessageListener;
 import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
@@ -24,13 +24,15 @@ import java.util.List;
 
 public class SimpleDiscordChat {
 
-    public static final String AVATAR = "https://minecraftapi.net/api/v2/profile/%s/avatar?size=128&overlay=true#%s";
     //Public variables
-    @Getter private static SimpleDiscordChat instance = new SimpleDiscordChat();
+    public static final String AVATAR = "https://minecraftapi.net/api/v2/profile/%s/avatar?size=128&overlay=true#%s";
+    @Getter private static final SimpleDiscordChat instance = new SimpleDiscordChat();
     @Getter private TextChannel chatChannel;
+    @Getter private Configs configs;
+    @Getter private SQLHelper sqlHelper;
 
     //Private variables
-    private List<Object> listeners = new ArrayList<>();
+    private final List<Object> listeners = new ArrayList<>();
 
     //The JDA instance
     private JDA jda;
@@ -41,7 +43,7 @@ public class SimpleDiscordChat {
         GatewayIntent.DIRECT_MESSAGES
     );
 
-    //Disabled cache
+    //Disabled caches
     private final EnumSet<CacheFlag> disabledCache = EnumSet.of(
             CacheFlag.ACTIVITY,
             CacheFlag.VOICE_STATE,
@@ -54,47 +56,49 @@ public class SimpleDiscordChat {
      * Enable the plugin
      */
     public void onEnable(File dataFolder) {
-        Configs.init(dataFolder);
-        ServerCache.init(dataFolder);
+        configs = new Configs(dataFolder);
+        sqlHelper = new SQLHelper(dataFolder);
 
         //Check vital config stuff
-        if(Configs.getSettingsConfig() == null || Configs.getSettingsConfig().getBotToken() == null || Configs.getSettingsConfig().getChatChannel() == null) {
+        if(configs.getSettingsConfig() == null || configs.getSettingsConfig().getBotToken() == null || configs.getSettingsConfig().getChatChannel() == null) {
             System.out.printf("Fatal error");
             return;
         }
 
-        //Build the JDA Config
-        JDABuilder jdaBuilder = JDABuilder.create(activeIntents)
-                .disableCache(disabledCache)
-                .setToken(Configs.getSettingsConfig().getBotToken());
+        //Avoid blocking whilst we load
+        new Thread(() -> {
+            //Build the JDA Config
+            JDABuilder jdaBuilder = JDABuilder.create(activeIntents)
+                    .disableCache(disabledCache)
+                    .setToken(configs.getSettingsConfig().getBotToken());
 
-        //Start the JDA Instance
-        try {
-            instance.jda = jdaBuilder
-                    .addEventListeners(new MessageListener())
-                    .build();
+            //Start the JDA Instance
+            try {
+                jda = jdaBuilder
+                        .addEventListeners(new MessageListener())
+                        .build();
 
-            //Await ready, can we async this?
-            instance.jda.awaitReady();
+                //Await ready, can we async this?
+                jda.awaitReady();
 
-            instance.chatChannel = instance.jda.getTextChannelById(Configs.getSettingsConfig().getChatChannel());
-        } catch (LoginException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+                chatChannel = jda.getTextChannelById(configs.getSettingsConfig().getChatChannel());
+            } catch (LoginException | InterruptedException e) {
+                e.printStackTrace();
+            }
 
-        //Start Message
-        ChatHandler.sendMessage(":green_circle: **Server Started**");
+            //Start Message
+            ChatHandler.sendMessage(":green_circle: **Server Started**");
+        }).start();
     }
 
     /**
      * Disable the plugin
      */
     public void onDisable() {
-        if(instance.jda != null) {
+        if(jda != null) {
+            sqlHelper.close();
             ChatHandler.sendMessage(":red_circle: **Server Stopped**");
-            instance.jda.shutdown();
+            jda.shutdown();
         }
     }
 
@@ -115,19 +119,19 @@ public class SimpleDiscordChat {
             throw new RuntimeException(listener.getClass().getName() + " missing public @Subscribe methods");
         }
 
-        instance.listeners.add(listener);
+        listeners.add(listener);
     }
 
     /**
      * Call the event
-     * @param event
+     * @param event The event to be called
      */
     public <T extends Event> T callEvent(T event) {
         // Thanks your DiscordSRV for inspiration under GNU v3
-        for(Object listener : instance.listeners) {
+        for(Object listener : listeners) {
             for (Method method : listener.getClass().getMethods()) {
                 if (method.getParameters().length != 1)
-                    continue; // Listeners will only have a single paramter
+                    continue; // Listeners will only have a single parameter
 
                 if (!method.getParameters()[0].getType().isAssignableFrom(event.getClass()))
                     continue; // Makes sure the event uses this event
@@ -141,15 +145,12 @@ public class SimpleDiscordChat {
 
                     try {
                         method.invoke(listener, event);
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    } catch (InvocationTargetException e) {
+                    } catch (IllegalAccessException | InvocationTargetException e) {
                         e.printStackTrace();
                     }
                 }
             }
         }
-
         return event;
     }
 }

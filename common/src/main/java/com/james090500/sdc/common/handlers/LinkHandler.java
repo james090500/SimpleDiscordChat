@@ -1,6 +1,6 @@
 package com.james090500.sdc.common.handlers;
 
-import com.james090500.sdc.common.config.Configs;
+import com.james090500.sdc.common.SimpleDiscordChat;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -17,7 +17,7 @@ public class LinkHandler {
         PrivateChannel channel = message.getPrivateChannel();
 
         //Ignore if linking is disabled
-        if(!Configs.getSettingsConfig().isLinking()) return;
+        if(!SimpleDiscordChat.getInstance().getConfigs().getSettingsConfig().isLinking()) return;
 
         //Check the code is correct length
         if(code.length() != 4) {
