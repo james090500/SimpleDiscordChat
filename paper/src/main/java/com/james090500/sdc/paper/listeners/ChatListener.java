@@ -3,7 +3,6 @@ package com.james090500.sdc.paper.listeners;
 import com.james090500.sdc.common.SimpleDiscordChat;
 import com.james090500.sdc.common.api.events.DiscordMessageEvent;
 import com.james090500.sdc.common.api.events.Subscribe;
-import com.james090500.sdc.common.config.Configs;
 import com.james090500.sdc.common.handlers.ChatHandler;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;

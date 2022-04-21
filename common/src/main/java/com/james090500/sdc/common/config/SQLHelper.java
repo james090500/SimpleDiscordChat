@@ -1,5 +1,6 @@
 package com.james090500.sdc.common.config;
 
+import com.james090500.sdc.common.SimpleDiscordChat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -23,19 +24,17 @@ public class SQLHelper {
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:" + sqlFile.getAbsolutePath());
             if(connection == null) {
-                System.out.printf("SQL Failed, this is a fatal error!");
+                SimpleDiscordChat.getInstance().getLogger().error("Failed to connect to SQLite database. The plugin will now disable");
                 return;
             }
 
-            String createUsersTable = "CREATE TABLE IF not EXISTS users (\n" +
-                "\tid integer PRIMARY KEY,\n" +
-                "uuid VARCHAR(36) NOT NULL,\n" +
-                "discord_snowflake VARCHAR(36) NULL\n" +
-            ")\n";
+            String createUsersTable = "CREATE TABLE IF not EXISTS users (id integer PRIMARY KEY,uuid VARCHAR(36) NOT NULL,discord_snowflake VARCHAR(36) NULL)";
+            String createLinkingTable = "CREATE TABLE IF not EXISTS linking (id integer PRIMARY KEY,uuid VARCHAR(36) NOT NULL,code VARCHAR(4) UNIQUE, created_at VARCHAR(10) NOT NULL)";
 
             //Statement
             Statement statement = connection.createStatement();
             statement.execute(createUsersTable);
+            statement.execute(createLinkingTable);
 
         } catch(SQLException e) {
             e.printStackTrace();
@@ -100,6 +99,46 @@ public class SQLHelper {
         } catch(SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Remove the user from the map for memory reasons
+     * @param uuid
+     */
+    public void forgetPlayer(UUID uuid) {
+        userCache.remove(uuid);
+    }
+
+    public boolean updateLinking(UUID uuid, int code) {
+        long currentTime = System.currentTimeMillis() / 1000;
+        try {
+            //Prepare an SQL Statement and then execute it
+            PreparedStatement checkCodeStatement = connection.prepareStatement("SELECT * FROM linking WHERE code = ?");
+            checkCodeStatement.setString(1, String.valueOf(code));
+            ResultSet resultSet = checkCodeStatement.executeQuery();
+
+            //Check if the results are empty and if they need a new code
+            while(resultSet.next()) {
+                long createdAt = Long.parseLong(resultSet.getString(3));
+                if((currentTime - createdAt) > 300) {
+                    PreparedStatement deleteOldCode = connection.prepareStatement("DELETE FROM linking WHERE code = ?");
+                    deleteOldCode.setString(1, String.valueOf(code));
+                    deleteOldCode.executeQuery();
+                } else {
+                    return false;
+                }
+            }
+
+            //Insert the code
+            PreparedStatement insertCodeStatement = connection.prepareStatement("INSERT INTO linking (uuid,code,created_at) VALUES (?,?,?)");
+            insertCodeStatement.setString(1, uuid.toString());
+            insertCodeStatement.setString(2, String.valueOf(code));
+            insertCodeStatement.setString(3, String.valueOf(currentTime));
+            return true;
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     /**

@@ -1,10 +1,13 @@
 package com.james090500.sdc.paper;
 
 import com.james090500.sdc.common.SimpleDiscordChat;
+import com.james090500.sdc.common.commands.CommandManager;
 import com.james090500.sdc.paper.listeners.AdvancementListener;
 import com.james090500.sdc.paper.listeners.ChatListener;
 import com.james090500.sdc.paper.listeners.JoinLeaveListener;
 import lombok.Getter;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class SDCPaper extends JavaPlugin {
@@ -14,7 +17,7 @@ public class SDCPaper extends JavaPlugin {
     @Override
     public void onEnable() {
         //Start the common enable
-        SimpleDiscordChat.getInstance().onEnable(getDataFolder());
+        SimpleDiscordChat.getInstance().onEnable(getSLF4JLogger(), getDataFolder());
 
         //Register instance
         instance = this;
@@ -26,6 +29,17 @@ public class SDCPaper extends JavaPlugin {
         SimpleDiscordChat.getInstance().registerListener(new ChatListener());
 
         //Commands
+        CommandManager commandManager = new CommandManager();
+        getCommand("discord").setExecutor((sender, command, label, args) -> {
+            String response;
+            if(sender instanceof Player) {
+                response = commandManager.init(((Player) sender).getUniqueId(), args);
+            } else {
+                response = commandManager.init(null, args);
+            }
+            sender.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(response));
+            return true;
+        });
     }
 
     @Override

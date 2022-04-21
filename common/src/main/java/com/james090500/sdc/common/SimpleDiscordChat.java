@@ -9,9 +9,11 @@ import com.james090500.sdc.common.listeners.MessageListener;
 import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import org.slf4j.Logger;
 
 import javax.security.auth.login.LoginException;
 import java.io.File;
@@ -28,8 +30,10 @@ public class SimpleDiscordChat {
     public static final String AVATAR = "https://minecraftapi.net/api/v2/profile/%s/avatar?size=128&overlay=true#%s";
     @Getter private static final SimpleDiscordChat instance = new SimpleDiscordChat();
     @Getter private TextChannel chatChannel;
+    @Getter private SelfUser botUser;
     @Getter private Configs configs;
     @Getter private SQLHelper sqlHelper;
+    @Getter private Logger logger;
 
     //Private variables
     private final List<Object> listeners = new ArrayList<>();
@@ -55,13 +59,14 @@ public class SimpleDiscordChat {
     /**
      * Enable the plugin
      */
-    public void onEnable(File dataFolder) {
-        configs = new Configs(dataFolder);
-        sqlHelper = new SQLHelper(dataFolder);
+    public void onEnable(Logger logger, File dataFolder) {
+        this.logger = logger;
+        this.configs = new Configs(dataFolder);
+        this.sqlHelper = new SQLHelper(dataFolder);
 
         //Check vital config stuff
         if(configs.getSettingsConfig() == null || configs.getSettingsConfig().getBotToken() == null || configs.getSettingsConfig().getChatChannel() == null) {
-            System.out.printf("Fatal error");
+            getLogger().error("Your config is missing important values (bot token, chat channel etc)");
             return;
         }
 
@@ -80,6 +85,7 @@ public class SimpleDiscordChat {
 
                 //Await ready, can we async this?
                 jda.awaitReady();
+                botUser = jda.getSelfUser();
 
                 chatChannel = jda.getTextChannelById(configs.getSettingsConfig().getChatChannel());
             } catch (LoginException | InterruptedException e) {

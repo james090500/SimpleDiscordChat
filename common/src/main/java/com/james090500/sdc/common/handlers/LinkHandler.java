@@ -5,6 +5,8 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
 
+import java.util.UUID;
+
 public class LinkHandler {
 
     /**
@@ -36,5 +38,20 @@ public class LinkHandler {
         //Valid code
         String format = String.format("Hello %s, thanks for sending the code %s", user.getName(), code);
         message.getPrivateChannel().sendMessage(format).queue();
+    }
+
+    /**
+     * Generate a new link code and return it for a uuid
+     * This feels really dumb but I can't think of a better way atm so... todo
+     * @param uuid The player uuid
+     */
+    public static int generateCode(UUID uuid) {
+        int code = 0;
+        boolean codeAddedToDatabase = false;
+        while(!codeAddedToDatabase) {
+            code = (int) (Math.random() * (9999 - 1000) + 1) + 1000;
+            codeAddedToDatabase = SimpleDiscordChat.getInstance().getSqlHelper().updateLinking(uuid, code);
+        }
+        return code;
     }
 }
