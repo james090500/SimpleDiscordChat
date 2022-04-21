@@ -1,6 +1,7 @@
 package com.james090500.sdc.common.handlers;
 
 import com.james090500.sdc.common.SimpleDiscordChat;
+import com.james090500.sdc.common.config.SQLHelper;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -28,16 +29,23 @@ public class LinkHandler {
         }
 
         //Check the code is numeric
+        int codeInt;
         try {
-            Integer.parseInt(code);
+            codeInt = Integer.parseInt(code);
         } catch(NumberFormatException e) {
             channel.sendMessage("That code is incorrect, please double check and try again.").queue();;
             return;
         }
 
         //Valid code
-        String format = String.format("Hello %s, thanks for sending the code %s", user.getName(), code);
-        message.getPrivateChannel().sendMessage(format).queue();
+        UUID uuid = SimpleDiscordChat.getInstance().getSqlHelper().checkCode(codeInt);
+        if(uuid != null) {
+            SimpleDiscordChat.getInstance().getSqlHelper().updatePlayer(uuid, user.getId());
+            String format = String.format("Hello %s, your discord account and minecraft account have been linked!", user.getName(), code);
+            message.getPrivateChannel().sendMessage(format).queue();
+        } else {
+            channel.sendMessage("That code is incorrect, please double check and try again.").queue();
+        }
     }
 
     /**

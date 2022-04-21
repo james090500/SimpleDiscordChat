@@ -109,6 +109,12 @@ public class SQLHelper {
         userCache.remove(uuid);
     }
 
+    /**
+     * Insert a new linking code for a user and remove all old ones
+     * @param uuid The users uuid
+     * @param code The code to insert
+     * @return
+     */
     public boolean updateLinking(UUID uuid, int code) {
         long currentTime = System.currentTimeMillis() / 1000;
         try {
@@ -123,22 +129,56 @@ public class SQLHelper {
                 if((currentTime - createdAt) > 300) {
                     PreparedStatement deleteOldCode = connection.prepareStatement("DELETE FROM linking WHERE code = ?");
                     deleteOldCode.setString(1, String.valueOf(code));
-                    deleteOldCode.executeQuery();
+                    deleteOldCode.execute();
                 } else {
                     return false;
                 }
             }
+
+            //Remove all old codes
+            PreparedStatement deletePreviousLinks = connection.prepareStatement("DELETE FROM linking WHERE uuid = ?");
+            deletePreviousLinks.setString(1, uuid.toString());
+            deletePreviousLinks.execute();
 
             //Insert the code
             PreparedStatement insertCodeStatement = connection.prepareStatement("INSERT INTO linking (uuid,code,created_at) VALUES (?,?,?)");
             insertCodeStatement.setString(1, uuid.toString());
             insertCodeStatement.setString(2, String.valueOf(code));
             insertCodeStatement.setString(3, String.valueOf(currentTime));
+            insertCodeStatement.execute();
             return true;
         } catch(SQLException e) {
             e.printStackTrace();
         }
         return false;
+    }
+
+    /**
+     * Check a code and return a UserInfo object.
+     *
+     * @param code
+     * @return
+     */
+    public UUID checkCode(int code) {
+        try {
+            //Prepare an SQL Statement and then execute it
+            PreparedStatement checkCodeStatement = connection.prepareStatement("SELECT * FROM linking WHERE code = ?");
+            checkCodeStatement.setString(1, String.valueOf(code));
+            ResultSet resultSet = checkCodeStatement.executeQuery();
+
+            //Check results aren't empty
+            while (resultSet.next()) {
+                //Remove old codes
+                PreparedStatement deletePreviousLinks = connection.prepareStatement("DELETE FROM linking WHERE code = ?");
+                deletePreviousLinks.setString(1, String.valueOf(code));
+                deletePreviousLinks.execute();
+
+                return UUID.fromString(resultSet.getString(2));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**

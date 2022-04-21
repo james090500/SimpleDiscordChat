@@ -1,4 +1,3 @@
 rootProject.name = 'SimpleDiscordChat'
-include 'paper'
-include 'common'
-
+include(":paper")
+include(":common")
