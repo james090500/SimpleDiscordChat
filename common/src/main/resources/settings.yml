@@ -48,3 +48,23 @@ advancement:
 linking: true
 syncGroups: true
 syncUsernames: true
+
+syncing:
+  #These are groups to sync (minecraft group name: discord group id)
+  groups: {
+    "default": "930579786542227488",
+    "player": "930579891760541807",
+    "regular": "930580013995143252",
+    "member": "930580100397797396",
+    "elder": "930580215707611206",
+    "veteran": "485904549195022351",
+    "champion": "666376095725256745",
+    "legend": "598617504981450759",
+    "nitro": "585542844966633472",
+    "respected": "401199394763833344",
+    "premium": "401199308394725376",
+    "vip": "399902301319593984"
+  }
+
+  # The username placeholder to sync.
+  username: "%username%"

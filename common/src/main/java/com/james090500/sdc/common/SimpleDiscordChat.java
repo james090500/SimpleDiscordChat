@@ -5,6 +5,8 @@ import com.james090500.sdc.common.api.events.Subscribe;
 import com.james090500.sdc.common.config.Configs;
 import com.james090500.sdc.common.config.SQLHelper;
 import com.james090500.sdc.common.handlers.ChatHandler;
+import com.james090500.sdc.common.handlers.LinkHandler;
+import com.james090500.sdc.common.handlers.SyncHandler;
 import com.james090500.sdc.common.listeners.MessageListener;
 import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
@@ -34,6 +36,8 @@ public class SimpleDiscordChat {
     @Getter private Configs configs;
     @Getter private SQLHelper sqlHelper;
     @Getter private Logger logger;
+    @Getter private LinkHandler linkHandler;
+    @Getter private SyncHandler syncHandler;
 
     //Private variables
     private final List<Object> listeners = new ArrayList<>();
@@ -63,6 +67,8 @@ public class SimpleDiscordChat {
         this.logger = logger;
         this.configs = new Configs(dataFolder);
         this.sqlHelper = new SQLHelper(dataFolder);
+        this.linkHandler = new LinkHandler();
+        this.syncHandler = new SyncHandler();
 
         //Check vital config stuff
         if(configs.getSettingsConfig() == null || configs.getSettingsConfig().getBotToken() == null || configs.getSettingsConfig().getChatChannel() == null) {

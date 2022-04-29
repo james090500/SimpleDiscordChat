@@ -2,6 +2,8 @@ package com.james090500.sdc.common.config;
 
 import lombok.Getter;
 
+import java.util.HashMap;
+
 @Getter
 public class SettingsConfig {
 
@@ -28,4 +30,9 @@ public class SettingsConfig {
     public boolean syncGroups;
     public boolean syncUsernames;
 
+    public Syncing syncing;
+    @Getter public static class Syncing {
+        public HashMap<String, String> groups;
+        public String username;
+    }
 }

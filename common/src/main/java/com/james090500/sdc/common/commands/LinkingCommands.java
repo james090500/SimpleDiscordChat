@@ -1,7 +1,6 @@
 package com.james090500.sdc.common.commands;
 
 import com.james090500.sdc.common.SimpleDiscordChat;
-import com.james090500.sdc.common.handlers.LinkHandler;
 
 import java.util.UUID;
 
@@ -13,7 +12,7 @@ public class LinkingCommands {
      * @return
      */
     public String linkCommand(UUID uuid) {
-        int code = LinkHandler.generateCode(uuid);
+        int code = SimpleDiscordChat.getInstance().getLinkHandler().generateCode(uuid);
         String response = String.format("Please direct message the bot (%s) the following code to link your account: %s", SimpleDiscordChat.getInstance().getBotUser().getName(), code);
         return response;
     }
@@ -24,6 +23,7 @@ public class LinkingCommands {
      * @return
      */
     public String unlinkCommand(UUID uuid) {
-        return "todo";
+        SimpleDiscordChat.getInstance().getLinkHandler().unlinkAccount(uuid);
+        return "Your Minecraft and Discord account have been unlinked!";
     }
 }

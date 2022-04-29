@@ -1,7 +1,6 @@
 package com.james090500.sdc.common.handlers;
 
 import com.james090500.sdc.common.SimpleDiscordChat;
-import com.james090500.sdc.common.config.SQLHelper;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -15,7 +14,7 @@ public class LinkHandler {
      * @param user The author of the message
      * @param message The message contents (We already check if empty or bot before this)
      */
-    public static void handle(User user, Message message) {
+    public void handle(User user, Message message) {
         String code = message.getContentRaw();
         PrivateChannel channel = message.getPrivateChannel();
 
@@ -51,9 +50,9 @@ public class LinkHandler {
     /**
      * Generate a new link code and return it for a uuid
      * This feels really dumb but I can't think of a better way atm so... todo
-     * @param uuid The player uuid
+     * @param uuid The players uuid
      */
-    public static int generateCode(UUID uuid) {
+    public int generateCode(UUID uuid) {
         int code = 0;
         boolean codeAddedToDatabase = false;
         while(!codeAddedToDatabase) {
@@ -61,5 +60,13 @@ public class LinkHandler {
             codeAddedToDatabase = SimpleDiscordChat.getInstance().getSqlHelper().updateLinking(uuid, code);
         }
         return code;
+    }
+
+    /**
+     * Unlink a users discord and minecraft account
+     * @param uuid The player uuid
+     */
+    public void unlinkAccount(UUID uuid) {
+        SimpleDiscordChat.getInstance().getSqlHelper().updatePlayer(uuid, null);
     }
 }

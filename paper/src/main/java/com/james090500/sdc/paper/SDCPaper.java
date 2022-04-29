@@ -7,15 +7,22 @@ import com.james090500.sdc.paper.listeners.ChatListener;
 import com.james090500.sdc.paper.listeners.JoinLeaveListener;
 import lombok.Getter;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.milkbowl.vault.permission.Permission;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class SDCPaper extends JavaPlugin {
 
     @Getter private static SDCPaper instance;
+    private Permission perms;
 
     @Override
     public void onEnable() {
+        //Setup vault
+        perms = getServer().getServicesManager().getRegistration(Permission.class).getProvider();
+
         //Start the common enable
         SimpleDiscordChat.getInstance().onEnable(getSLF4JLogger(), getDataFolder());
 
@@ -40,6 +47,14 @@ public class SDCPaper extends JavaPlugin {
             sender.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(response));
             return true;
         });
+
+        //Syncs
+        long fiveMin = 20L * 50; //5 Minutes
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> Bukkit.getOnlinePlayers().forEach(player -> {
+                String displayName = PlainTextComponentSerializer.plainText().serialize(player.displayName());
+                SimpleDiscordChat.getInstance().getSyncHandler().doSync(player.getUniqueId(), displayName, perms.getPrimaryGroup(player));
+            }
+        ), fiveMin, fiveMin);
     }
 
     @Override
