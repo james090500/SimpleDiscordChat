@@ -38,6 +38,7 @@ public class LinkHandler {
 
         //Valid code
         UUID uuid = SimpleDiscordChat.getInstance().getSqlHelper().checkCode(codeInt);
+        SimpleDiscordChat.getInstance().getSqlHelper().forgetPlayer(uuid);
         if(uuid != null) {
             SimpleDiscordChat.getInstance().getSqlHelper().updatePlayer(uuid, user.getId());
             String format = String.format("Hello %s, your discord account and minecraft account have been linked!", user.getName(), code);

@@ -29,6 +29,7 @@ public class JoinLeaveHandler {
      * The join embed
      */
     public void join() {
+        if(SimpleDiscordChat.getInstance().getChatChannel() == null) return;
         new Thread(() -> {
             //Start an embed
             EmbedBuilder joinEmbed = new EmbedBuilder();
@@ -68,6 +69,7 @@ public class JoinLeaveHandler {
      * The leave embed
      */
     public void leave() {
+        if(SimpleDiscordChat.getInstance().getChatChannel() == null) return;
         new Thread(() -> {
             //Forget the player
             SimpleDiscordChat.getInstance().getSqlHelper().forgetPlayer(uuid);

@@ -60,7 +60,7 @@ public class SQLHelper {
             //Check results aren't empty
             while(resultSet.next()) {
                 //Create a new user info instance and return the data
-                UserInfo userInfo = new UserInfo(uuid, resultSet.getString(2));
+                UserInfo userInfo = new UserInfo(uuid, resultSet.getString(3));
                 userCache.put(uuid, userInfo);
                 return userInfo;
             }
@@ -76,21 +76,20 @@ public class SQLHelper {
      * @param discordSnowflake Discord snowflake but can be null if not linked
      */
     public void updatePlayer(UUID uuid, @Nullable String discordSnowflake) {
+        forgetPlayer(uuid);
         try {
-            //Check if we have a cache
-            UserInfo cachedPlayer = getPlayer(uuid);
-            PreparedStatement preparedStatement;
+            //Remove duplicates
+            PreparedStatement deleteOldPlayer = connection.prepareStatement("DELETE FROM users WHERE uuid = ?");
+            deleteOldPlayer.setString(1, uuid.toString());
+            deleteOldPlayer.execute();
+            PreparedStatement deleteOldDiscord = connection.prepareStatement("DELETE FROM users WHERE discord_snowflake = ?");
+            deleteOldDiscord.setString(1, discordSnowflake);
+            deleteOldDiscord.execute();
 
-            //Insert or update
-            if (cachedPlayer != null) {
-                preparedStatement = connection.prepareStatement("UPDATE users SET discord_snowflake = ? WHERE uuid = ?");
-                preparedStatement.setString(1, discordSnowflake);
-                preparedStatement.setString(2, uuid.toString());
-            } else {
-                preparedStatement = connection.prepareStatement("INSERT INTO users (uuid, discord_snowflake) VALUES(?,?)");
-                preparedStatement.setString(1, uuid.toString());
-                preparedStatement.setString(2, discordSnowflake);
-            }
+            //Insert
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO users (uuid, discord_snowflake) VALUES(?,?)");
+            preparedStatement.setString(1, uuid.toString());
+            preparedStatement.setString(2, discordSnowflake);
 
             UserInfo userInfo = new UserInfo(uuid, discordSnowflake);
             userCache.put(uuid, userInfo);
@@ -116,6 +115,7 @@ public class SQLHelper {
      * @return
      */
     public boolean updateLinking(UUID uuid, int code) {
+        forgetPlayer(uuid);
         long currentTime = System.currentTimeMillis() / 1000;
         try {
             //Prepare an SQL Statement and then execute it

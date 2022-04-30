@@ -27,7 +27,14 @@ public class JoinLeaveListener implements Listener {
      */
     @EventHandler
     public void onLeave(PlayerQuitEvent event) {
-        Player player = event.getPlayer();
+        JoinLeaveListener.onLeave(event.getPlayer());
+    }
+
+    /**
+     * Call a leave
+     * @param player The player leaving
+     */
+    public static void onLeave(Player player) {
         String username = PaperComponents.plainTextSerializer().serialize(player.displayName());
         new JoinLeaveHandler(player.getUniqueId(), username).leave();
     }

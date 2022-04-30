@@ -26,21 +26,27 @@ public class SyncHandler {
             //Remove all roles from the user that we sync
             Guild currentGuild = SimpleDiscordChat.getInstance().getChatChannel().getGuild();
 
-            //All server roles
-            List<Role> allRoles = new ArrayList<>();
-            List<Role> rolesToAdd = new ArrayList<>();
-
-            //Populate roles
-            SimpleDiscordChat.getInstance().getConfigs().getSettingsConfig().getSyncing().getGroups().forEach((snowflake, name) -> allRoles.add(currentGuild.getRoleById(snowflake)));
-
-            //Get the member and remove the new role from removal list
+            //Get the member and check if it can be edited
             Member member = currentGuild.getMemberById(discordUser);
+            if(member == null) return;
+            if(!currentGuild.getMember(SimpleDiscordChat.getInstance().getBotUser()).canInteract(member)) return;
+
+            //All server roles
+            List<Role> rolesToAdd = new ArrayList<>();
+            List<Role> rolesToRemove = new ArrayList<>();
+
+            //Populate all roles (for removal)
+            SimpleDiscordChat.getInstance().getConfigs().getSettingsConfig().getSyncing().getGroups().forEach((name, snowflake) -> rolesToRemove.add(currentGuild.getRoleById(snowflake)));
+
+            //Get the roles to add and remove it from the roleToRemove
             Role newRole = currentGuild.getRoleById(discordGroup);
-            allRoles.remove(newRole);
+            rolesToAdd.add(newRole);
+            rolesToRemove.remove(newRole);
 
             //Update the user
-            if(member != null) {
-                currentGuild.modifyMemberRoles(member, rolesToAdd, allRoles).queue();
+            if(!member.getRoles().containsAll(rolesToAdd) || member.getRoles().containsAll(rolesToRemove) || !member.getNickname().equals(username)) {
+                SimpleDiscordChat.getInstance().getLogger().error("Updating member");
+                currentGuild.modifyMemberRoles(member, rolesToAdd, rolesToRemove).queue();
                 currentGuild.modifyNickname(member, username).queue();
             }
         }).start();

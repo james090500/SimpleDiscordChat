@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
 
@@ -43,12 +44,13 @@ public class SimpleDiscordChat {
     private final List<Object> listeners = new ArrayList<>();
 
     //The JDA instance
-    private JDA jda;
+    @Getter private JDA jda;
 
     //Needed intents
     private final EnumSet<GatewayIntent> activeIntents = EnumSet.of(
         GatewayIntent.GUILD_MESSAGES,
-        GatewayIntent.DIRECT_MESSAGES
+        GatewayIntent.DIRECT_MESSAGES,
+        GatewayIntent.GUILD_MEMBERS
     );
 
     //Disabled caches
@@ -81,6 +83,7 @@ public class SimpleDiscordChat {
             //Build the JDA Config
             JDABuilder jdaBuilder = JDABuilder.create(activeIntents)
                     .disableCache(disabledCache)
+                    .setMemberCachePolicy(MemberCachePolicy.ALL)
                     .setToken(configs.getSettingsConfig().getBotToken());
 
             //Start the JDA Instance

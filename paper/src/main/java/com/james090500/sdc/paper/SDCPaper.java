@@ -49,7 +49,7 @@ public class SDCPaper extends JavaPlugin {
         });
 
         //Syncs
-        long fiveMin = 20L * 50; //5 Minutes
+        long fiveMin = 20L * 30; //30 seconds (20L * 60 * 5)
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> Bukkit.getOnlinePlayers().forEach(player -> {
                 String displayName = PlainTextComponentSerializer.plainText().serialize(player.displayName());
                 SimpleDiscordChat.getInstance().getSyncHandler().doSync(player.getUniqueId(), displayName, perms.getPrimaryGroup(player));
@@ -59,6 +59,7 @@ public class SDCPaper extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        Bukkit.getOnlinePlayers().forEach(player -> JoinLeaveListener.onLeave(player));
         SimpleDiscordChat.getInstance().onDisable();
     }
 }
