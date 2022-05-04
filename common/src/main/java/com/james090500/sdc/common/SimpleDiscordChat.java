@@ -1,7 +1,6 @@
 package com.james090500.sdc.common;
 
-import com.james090500.sdc.common.api.Event;
-import com.james090500.sdc.common.api.events.Subscribe;
+import com.james090500.sdc.common.api.ServerInterface;
 import com.james090500.sdc.common.config.Configs;
 import com.james090500.sdc.common.config.SQLHelper;
 import com.james090500.sdc.common.handlers.ChatHandler;
@@ -20,9 +19,6 @@ import org.slf4j.Logger;
 
 import javax.security.auth.login.LoginException;
 import java.io.File;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -35,6 +31,7 @@ public class SimpleDiscordChat {
     @Getter private TextChannel chatChannel;
     @Getter private SelfUser botUser;
     @Getter private Configs configs;
+    @Getter private ServerInterface serverInterface;
     @Getter private SQLHelper sqlHelper;
     @Getter private Logger logger;
     @Getter private LinkHandler linkHandler;
@@ -65,8 +62,9 @@ public class SimpleDiscordChat {
     /**
      * Enable the plugin
      */
-    public void onEnable(Logger logger, File dataFolder) {
+    public void onEnable(Logger logger, File dataFolder, ServerInterface serverInterface) {
         this.logger = logger;
+        this.serverInterface = serverInterface;
         this.configs = new Configs(dataFolder);
         this.sqlHelper = new SQLHelper(dataFolder);
         this.linkHandler = new LinkHandler();
@@ -115,57 +113,5 @@ public class SimpleDiscordChat {
             ChatHandler.sendMessage(":red_circle: **Server Stopped**");
             jda.shutdown();
         }
-    }
-
-    /**
-     * Register an API listener
-     * @param listener The listener
-     */
-    public void registerListener(Object listener) {
-        //Make sure there's a subscribe event otherwise there's nothing to call
-        int subbedMethods = 0;
-        for(Method method : listener.getClass().getMethods()) {
-            if(method.isAnnotationPresent(Subscribe.class)) {
-                subbedMethods++;
-            }
-        }
-
-        if(subbedMethods == 0) {
-            throw new RuntimeException(listener.getClass().getName() + " missing public @Subscribe methods");
-        }
-
-        listeners.add(listener);
-    }
-
-    /**
-     * Call the event
-     * @param event The event to be called
-     */
-    public <T extends Event> T callEvent(T event) {
-        // Thanks your DiscordSRV for inspiration under GNU v3
-        for(Object listener : listeners) {
-            for (Method method : listener.getClass().getMethods()) {
-                if (method.getParameters().length != 1)
-                    continue; // Listeners will only have a single parameter
-
-                if (!method.getParameters()[0].getType().isAssignableFrom(event.getClass()))
-                    continue; // Makes sure the event uses this event
-
-                if (!method.isAnnotationPresent(Subscribe.class))
-                    continue; // Makes sure the method has our subscribe annotation
-
-                for (Annotation annotation : method.getAnnotations()) {
-                    if (!(annotation instanceof Subscribe))
-                        continue; // Loop all annotations until we get ours
-
-                    try {
-                        method.invoke(listener, event);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-        return event;
     }
 }

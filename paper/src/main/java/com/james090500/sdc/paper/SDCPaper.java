@@ -24,7 +24,7 @@ public class SDCPaper extends JavaPlugin {
         perms = getServer().getServicesManager().getRegistration(Permission.class).getProvider();
 
         //Start the common enable
-        SimpleDiscordChat.getInstance().onEnable(getSLF4JLogger(), getDataFolder());
+        SimpleDiscordChat.getInstance().onEnable(getSLF4JLogger(), getDataFolder(), new Server());
 
         //Register instance
         instance = this;
@@ -33,7 +33,6 @@ public class SDCPaper extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new AdvancementListener(), this);
         getServer().getPluginManager().registerEvents(new ChatListener(), this);
         getServer().getPluginManager().registerEvents(new JoinLeaveListener(), this);
-        SimpleDiscordChat.getInstance().registerListener(new ChatListener());
 
         //Commands
         CommandManager commandManager = new CommandManager();

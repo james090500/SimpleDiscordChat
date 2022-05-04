@@ -1,7 +1,6 @@
 package com.james090500.sdc.common.listeners;
 
 import com.james090500.sdc.common.SimpleDiscordChat;
-import com.james090500.sdc.common.api.events.DiscordMessageEvent;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
@@ -32,10 +31,10 @@ public class MessageListener extends ListenerAdapter {
         if(event.isFromType(ChannelType.PRIVATE)) {
             SimpleDiscordChat.getInstance().getLinkHandler().handle(user, message);
         } else if(event.getChannel().getId().equals(SimpleDiscordChat.getInstance().getConfigs().getSettingsConfig().getChatChannel())) {
-            SimpleDiscordChat.getInstance().callEvent(new DiscordMessageEvent(
+            SimpleDiscordChat.getInstance().getServerInterface().onDiscordMessage(
                     user.getName(),
                     message.getContentDisplay()
-            ));
+            );
         }
     }
 }
