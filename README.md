@@ -26,7 +26,7 @@ chatChannel: ""
 # %message% = Discord message  
 #  
 # Discord section (This is what displays in discord)  
-# %player_username% = Players Username  
+# %player_name% = Players Username  
 # %player_nick% = Players Display Name (usually their nickname)  
 # %player_uuid% = Players UUID  
 # %message% = Chat message  

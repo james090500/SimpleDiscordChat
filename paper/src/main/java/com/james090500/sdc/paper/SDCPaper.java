@@ -2,6 +2,7 @@ package com.james090500.sdc.paper;
 
 import com.james090500.sdc.common.SimpleDiscordChat;
 import com.james090500.sdc.common.commands.CommandManager;
+import com.james090500.sdc.common.handlers.SyncHandler;
 import com.james090500.sdc.paper.listeners.AdvancementListener;
 import com.james090500.sdc.paper.listeners.ChatListener;
 import com.james090500.sdc.paper.listeners.JoinLeaveListener;
@@ -51,7 +52,7 @@ public class SDCPaper extends JavaPlugin {
         long fiveMin = 20L * 30; //30 seconds (20L * 60 * 5)
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> Bukkit.getOnlinePlayers().forEach(player -> {
                 String displayName = PlainTextComponentSerializer.plainText().serialize(player.displayName());
-                SimpleDiscordChat.getInstance().getSyncHandler().doSync(player.getUniqueId(), displayName, perms.getPrimaryGroup(player));
+                SyncHandler.doSync(player.getUniqueId(), displayName, perms.getPrimaryGroup(player));
             }
         ), fiveMin, fiveMin);
     }

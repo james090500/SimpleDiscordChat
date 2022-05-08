@@ -6,15 +6,17 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 public class Configs {
 
-    @Getter private SettingsConfig settingsConfig;
+    @Getter private static SettingsConfig settingsConfig;
 
-    public Configs(File dataFolder) {
+    //Runs first once
+    static {
         //Makes plugin folders if they don't exist
-        File pluginFolder = dataFolder;
+        File pluginFolder = SimpleDiscordChat.getInstance().getDataFolder();
         if(!pluginFolder.exists()) {
             pluginFolder.mkdir();
         }
@@ -29,7 +31,7 @@ public class Configs {
             }
         }
 
-        try (Reader reader = new FileReader(configFile)) {
+        try (Reader reader = new FileReader(configFile, StandardCharsets.UTF_8)) {
             CustomClassLoaderConstructor customClassLoaderConstructor = new CustomClassLoaderConstructor(SettingsConfig.class.getClassLoader());
             settingsConfig = new Yaml(customClassLoaderConstructor).loadAs(reader, SettingsConfig.class);
         } catch(Exception e) {

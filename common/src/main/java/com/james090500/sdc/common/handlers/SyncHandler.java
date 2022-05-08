@@ -1,6 +1,7 @@
 package com.james090500.sdc.common.handlers;
 
 import com.james090500.sdc.common.SimpleDiscordChat;
+import com.james090500.sdc.common.config.Configs;
 import com.james090500.sdc.common.config.SQLHelper;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -12,14 +13,20 @@ import java.util.UUID;
 
 public class SyncHandler {
 
-    public void doSync(UUID uuid, String username, String groupName) {
+    /**
+     * Runs the sync of groups, username etc
+     * @param uuid The uuid to sync
+     * @param username Their username/display name
+     * @param groupName Their primary group name
+     */
+    public static void doSync(UUID uuid, String username, String groupName) {
         new Thread(() -> {
             //Initialise all needed variables
             String discordUser;
-            String discordGroup = SimpleDiscordChat.getInstance().getConfigs().getSettingsConfig().getSyncing().getGroups().get(groupName);
+            String discordGroup = Configs.getSettingsConfig().getSyncing().getGroups().get(groupName);
 
             //Get SQL data
-            SQLHelper.UserInfo userInfo = SimpleDiscordChat.getInstance().getSqlHelper().getPlayer(uuid);
+            SQLHelper.UserInfo userInfo = SQLHelper.getPlayer(uuid);
             if(userInfo == null) return;
             discordUser = userInfo.getDiscordSnowflake();
 
@@ -29,14 +36,14 @@ public class SyncHandler {
             //Get the member and check if it can be edited
             Member member = currentGuild.getMemberById(discordUser);
             if(member == null) return;
-            if(!currentGuild.getMember(SimpleDiscordChat.getInstance().getBotUser()).canInteract(member)) return;
+            if(!currentGuild.getMember(SimpleDiscordChat.getInstance().getBot()).canInteract(member)) return;
 
             //All server roles
             List<Role> rolesToAdd = new ArrayList<>();
             List<Role> rolesToRemove = new ArrayList<>();
 
             //Populate all roles (for removal)
-            SimpleDiscordChat.getInstance().getConfigs().getSettingsConfig().getSyncing().getGroups().forEach((name, snowflake) -> rolesToRemove.add(currentGuild.getRoleById(snowflake)));
+            Configs.getSettingsConfig().getSyncing().getGroups().forEach((name, snowflake) -> rolesToRemove.add(currentGuild.getRoleById(snowflake)));
 
             //Get the roles to add and remove it from the roleToRemove
             Role newRole = currentGuild.getRoleById(discordGroup);

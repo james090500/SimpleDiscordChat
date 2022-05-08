@@ -4,40 +4,42 @@ botToken: ""
 # The channel of the bot
 chatChannel: ""
 
+## Commands
+# The /discord command message
+command: "&aThis is the discord server https://discord.gg/capecraft"
+
 ## Chat Formats
 # Minecraft section (This is what displays in minecraft)
-# %username% = Discord username
+# %username = Discord username
 # %message% = Discord message
 #
 # Discord section (This is what displays in discord)
-# %player_username% = Players Username
-# %player_nick% = Players Display Name (usually their nickname)
-# %player_uuid% = Players UUID
 # %message% = Chat message
+# Use PAPI placeholders here
 format:
-  minecraft: "&7[&aD&7]&r <%username%> %message%"
-  discord: "%player_nick%: %message%"
+  minecraft: "&7[&bD&7]&r &%role_color%&l%role_name% &9»&r %username%&7: &r%message%"
+  discord: "%player_displayname%: %message%"
 
 ## First Join, Join and Leave messages
-# %username = Minecraft username
+# Use placeholders (PAPI) for the player username
 firstJoin:
   enabled: true
   color: 16711915
-  message: "\uD83C\uDF89 %username% has joined the server for the first time! \uD83C\uDF89"
+  message: "\uD83C\uDF89 %player_name% has joined the server for the first time! \uD83C\uDF89"
 join:
   enabled: true
   color: 65280
-  message: "%username% has joined the server"
+  message: "%player_name% has joined the server"
 leave:
   enabled: true
   color: 16711680
-  message: "%username% has left the server"
+  message: "%player_name% has left the server"
 
 ## Advancements
 advancement:
   enabled: true
   color: 16777045
-  message: "%username% has made the advancement %advancement%!"
+  message: "%payer_displayname% has made the advancement %advancement%!"
 
 ## Linking and Syncing
 # If linking is true, the bot will respond to DMs for codes obtained with /discord link
@@ -67,4 +69,4 @@ syncing:
   }
 
   # The username placeholder to sync.
-  username: "%username%"
+  username: "%payer_displayname%"

@@ -19,10 +19,9 @@ public class AdvancementListener implements Listener {
         Player player = event.getPlayer();
 
         //Set the variables
-        String username = PaperComponents.plainTextSerializer().serialize(player.displayName());
         String advancement = PaperComponents.plainTextSerializer().serialize(event.getAdvancement().getDisplay().title());
 
         //Send to discord
-        new AdvancementHandler(player.getUniqueId(), username).send(advancement);
+        AdvancementHandler.send(player.getUniqueId(), advancement);
     }
 }

@@ -1,6 +1,7 @@
 package com.james090500.sdc.paper.listeners;
 
 import com.james090500.sdc.common.SimpleDiscordChat;
+import com.james090500.sdc.common.config.Configs;
 import com.james090500.sdc.common.handlers.ChatHandler;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -16,12 +17,12 @@ public class ChatListener implements Listener {
     @EventHandler
     public void onChatEvent(AsyncChatEvent event) {
         //Chat Format
-        String chatFormat = SimpleDiscordChat.getInstance().getConfigs().getSettingsConfig().getFormat().getDiscord();
+        String chatFormat = Configs.getSettingsConfig().getFormat().getDiscord();
 
         //Fill placeholders
         String chatMessage = PlainTextComponentSerializer.plainText().serialize(event.message());
         chatFormat = chatFormat.replaceAll("%message%", chatMessage);
-        chatFormat = SimpleDiscordChat.getInstance().getServerInterface().parsePlaceholders(event.getPlayer().getUniqueId(), chatFormat);
+        chatFormat = SimpleDiscordChat.getInstance().getServerInterface().parsePlaceholders(event.getPlayer().getUniqueId(), chatFormat, true);
 
         //Send to discord
         ChatHandler.sendMessage(chatFormat);

@@ -1,7 +1,6 @@
 package com.james090500.sdc.paper.listeners;
 
 import com.james090500.sdc.common.handlers.JoinLeaveHandler;
-import io.papermc.paper.text.PaperComponents;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,8 +16,7 @@ public class JoinLeaveListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        String username = PaperComponents.plainTextSerializer().serialize(player.displayName());
-        new JoinLeaveHandler(player.getUniqueId(), username).join();
+        JoinLeaveHandler.join(player.getUniqueId());
     }
 
     /**
@@ -27,7 +25,7 @@ public class JoinLeaveListener implements Listener {
      */
     @EventHandler
     public void onLeave(PlayerQuitEvent event) {
-        JoinLeaveListener.onLeave(event.getPlayer());
+        JoinLeaveHandler.leave(event.getPlayer().getUniqueId());
     }
 
     /**
@@ -35,7 +33,6 @@ public class JoinLeaveListener implements Listener {
      * @param player The player leaving
      */
     public static void onLeave(Player player) {
-        String username = PaperComponents.plainTextSerializer().serialize(player.displayName());
-        new JoinLeaveHandler(player.getUniqueId(), username).leave();
+        JoinLeaveHandler.leave(player.getUniqueId());
     }
 }

@@ -4,8 +4,6 @@ import com.james090500.sdc.common.api.ServerInterface;
 import com.james090500.sdc.common.config.Configs;
 import com.james090500.sdc.common.config.SQLHelper;
 import com.james090500.sdc.common.handlers.ChatHandler;
-import com.james090500.sdc.common.handlers.LinkHandler;
-import com.james090500.sdc.common.handlers.SyncHandler;
 import com.james090500.sdc.common.listeners.MessageListener;
 import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
@@ -19,26 +17,18 @@ import org.slf4j.Logger;
 
 import javax.security.auth.login.LoginException;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
 
 public class SimpleDiscordChat {
 
     //Public variables
-    public static final String AVATAR = "https://minecraftapi.net/api/v2/profile/%s/avatar?size=128&overlay=true#%s";
+    @Getter private static final String avatar = "https://minecraftapi.net/api/v2/profile/%s/avatar?size=128&overlay=true#%s";
     @Getter private static final SimpleDiscordChat instance = new SimpleDiscordChat();
-    @Getter private TextChannel chatChannel;
-    @Getter private SelfUser botUser;
-    @Getter private Configs configs;
     @Getter private ServerInterface serverInterface;
-    @Getter private SQLHelper sqlHelper;
     @Getter private Logger logger;
-    @Getter private LinkHandler linkHandler;
-    @Getter private SyncHandler syncHandler;
-
-    //Private variables
-    private final List<Object> listeners = new ArrayList<>();
+    @Getter private File dataFolder;
+    @Getter private SelfUser bot;
+    @Getter private TextChannel chatChannel;
 
     //The JDA instance
     @Getter private JDA jda;
@@ -65,13 +55,10 @@ public class SimpleDiscordChat {
     public void onEnable(Logger logger, File dataFolder, ServerInterface serverInterface) {
         this.logger = logger;
         this.serverInterface = serverInterface;
-        this.configs = new Configs(dataFolder);
-        this.sqlHelper = new SQLHelper(dataFolder);
-        this.linkHandler = new LinkHandler();
-        this.syncHandler = new SyncHandler();
+        this.dataFolder = dataFolder;
 
         //Check vital config stuff
-        if(configs.getSettingsConfig() == null || configs.getSettingsConfig().getBotToken() == null || configs.getSettingsConfig().getChatChannel() == null) {
+        if(Configs.getSettingsConfig() == null || Configs.getSettingsConfig().getBotToken() == null || Configs.getSettingsConfig().getChatChannel() == null) {
             getLogger().error("Your config is missing important values (bot token, chat channel etc)");
             return;
         }
@@ -82,7 +69,7 @@ public class SimpleDiscordChat {
             JDABuilder jdaBuilder = JDABuilder.create(activeIntents)
                     .disableCache(disabledCache)
                     .setMemberCachePolicy(MemberCachePolicy.ALL)
-                    .setToken(configs.getSettingsConfig().getBotToken());
+                    .setToken(Configs.getSettingsConfig().getBotToken());
 
             //Start the JDA Instance
             try {
@@ -92,9 +79,9 @@ public class SimpleDiscordChat {
 
                 //Await ready, can we async this?
                 jda.awaitReady();
-                botUser = jda.getSelfUser();
 
-                chatChannel = jda.getTextChannelById(configs.getSettingsConfig().getChatChannel());
+                this.bot = jda.getSelfUser();
+                this.chatChannel = jda.getTextChannelById(Configs.getSettingsConfig().getChatChannel());
             } catch (LoginException | InterruptedException e) {
                 e.printStackTrace();
             }
@@ -109,7 +96,7 @@ public class SimpleDiscordChat {
      */
     public void onDisable() {
         if(jda != null) {
-            sqlHelper.close();
+            SQLHelper.close();
             ChatHandler.sendMessage(":red_circle: **Server Stopped**");
             jda.shutdown();
         }

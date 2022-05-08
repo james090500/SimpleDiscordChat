@@ -12,30 +12,24 @@ import java.util.UUID;
 
 public class SQLHelper {
 
-    private Connection connection;
-    private HashMap<UUID, UserInfo> userCache = new HashMap<>();
+    private static Connection connection;
+    private static HashMap<UUID, UserInfo> userCache = new HashMap<>();
 
-    /**
-     * Initiate the SQLite instance
-     * @param dataFolder Plugin folder
-     */
-    public SQLHelper(File dataFolder) {
-        File sqlFile = new File(dataFolder, "users.db");
+    static {
+        File sqlFile = new File(SimpleDiscordChat.getInstance().getDataFolder(), "users.db");
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:" + sqlFile.getAbsolutePath());
             if(connection == null) {
                 SimpleDiscordChat.getInstance().getLogger().error("Failed to connect to SQLite database. The plugin will now disable");
-                return;
+            } else {
+                String createUsersTable = "CREATE TABLE IF not EXISTS users (id integer PRIMARY KEY,uuid VARCHAR(36) NOT NULL,discord_snowflake VARCHAR(36) NULL)";
+                String createLinkingTable = "CREATE TABLE IF not EXISTS linking (id integer PRIMARY KEY,uuid VARCHAR(36) NOT NULL,code VARCHAR(4) UNIQUE, created_at VARCHAR(10) NOT NULL)";
+
+                //Statement
+                Statement statement = connection.createStatement();
+                statement.execute(createUsersTable);
+                statement.execute(createLinkingTable);
             }
-
-            String createUsersTable = "CREATE TABLE IF not EXISTS users (id integer PRIMARY KEY,uuid VARCHAR(36) NOT NULL,discord_snowflake VARCHAR(36) NULL)";
-            String createLinkingTable = "CREATE TABLE IF not EXISTS linking (id integer PRIMARY KEY,uuid VARCHAR(36) NOT NULL,code VARCHAR(4) UNIQUE, created_at VARCHAR(10) NOT NULL)";
-
-            //Statement
-            Statement statement = connection.createStatement();
-            statement.execute(createUsersTable);
-            statement.execute(createLinkingTable);
-
         } catch(SQLException e) {
             e.printStackTrace();
         }
@@ -46,7 +40,7 @@ public class SQLHelper {
      * @param uuid Player uuid
      * @return The players info
      */
-    public UserInfo getPlayer(UUID uuid) {
+    public static UserInfo getPlayer(UUID uuid) {
         //Return from the cache!
         UserInfo cachedPlayer = userCache.get(uuid);
         if(cachedPlayer != null) return cachedPlayer;
@@ -75,7 +69,7 @@ public class SQLHelper {
      * @param uuid Players uuid
      * @param discordSnowflake Discord snowflake but can be null if not linked
      */
-    public void updatePlayer(UUID uuid, @Nullable String discordSnowflake) {
+    public static void updatePlayer(UUID uuid, @Nullable String discordSnowflake) {
         forgetPlayer(uuid);
         try {
             //Remove duplicates
@@ -104,7 +98,7 @@ public class SQLHelper {
      * Remove the user from the map for memory reasons
      * @param uuid
      */
-    public void forgetPlayer(UUID uuid) {
+    public static void forgetPlayer(UUID uuid) {
         userCache.remove(uuid);
     }
 
@@ -114,7 +108,7 @@ public class SQLHelper {
      * @param code The code to insert
      * @return
      */
-    public boolean updateLinking(UUID uuid, int code) {
+    public static boolean updateLinking(UUID uuid, int code) {
         forgetPlayer(uuid);
         long currentTime = System.currentTimeMillis() / 1000;
         try {
@@ -159,7 +153,7 @@ public class SQLHelper {
      * @param code
      * @return
      */
-    public UUID checkCode(int code) {
+    public static UUID checkCode(int code) {
         try {
             //Prepare an SQL Statement and then execute it
             PreparedStatement checkCodeStatement = connection.prepareStatement("SELECT * FROM linking WHERE code = ?");
@@ -184,7 +178,7 @@ public class SQLHelper {
     /**
      * Close the connection
      */
-    public void close() {
+    public static void close() {
         try {
             connection.close();
         } catch (SQLException e) {
@@ -194,7 +188,7 @@ public class SQLHelper {
 
     @AllArgsConstructor
     @Getter
-    public class UserInfo {
+    public static class UserInfo {
         private UUID uuid;
         private String discordSnowflake;
     }

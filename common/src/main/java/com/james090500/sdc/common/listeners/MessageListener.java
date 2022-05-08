@@ -1,11 +1,14 @@
 package com.james090500.sdc.common.listeners;
 
 import com.james090500.sdc.common.SimpleDiscordChat;
-import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.User;
+import com.james090500.sdc.common.config.Configs;
+import com.james090500.sdc.common.handlers.LinkHandler;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+
+import java.awt.*;
+import java.util.Optional;
 
 public class MessageListener extends ListenerAdapter {
 
@@ -29,10 +32,24 @@ public class MessageListener extends ListenerAdapter {
 
         //Handle DM vs Guide and make sure its the right channel
         if(event.isFromType(ChannelType.PRIVATE)) {
-            SimpleDiscordChat.getInstance().getLinkHandler().handle(user, message);
-        } else if(event.getChannel().getId().equals(SimpleDiscordChat.getInstance().getConfigs().getSettingsConfig().getChatChannel())) {
+            LinkHandler.handle(user, message);
+        } else if(event.getChannel().getId().equals(Configs.getSettingsConfig().getChatChannel())) {
+            Guild currentGuild = SimpleDiscordChat.getInstance().getChatChannel().getGuild();
+            Member member = currentGuild.getMemberById(user.getId());
+
+            //Make sure the user has a role
+            Color roleColour = new Color(Integer.parseInt("36393E",16));
+            String roleName = "";
+            if(member.getRoles().size() > 0) {
+                Role topRole = member.getRoles().get(0);
+                roleColour = Optional.ofNullable(topRole.getColor()).orElse(roleColour);
+                roleName = topRole.getName();
+            }
+
             SimpleDiscordChat.getInstance().getServerInterface().onDiscordMessage(
-                    user.getName(),
+                    roleColour,
+                    roleName,
+                    member.getEffectiveName(),
                     message.getContentDisplay()
             );
         }

@@ -10,6 +10,8 @@ public class SettingsConfig {
     public String botToken;
     public String chatChannel;
 
+    public String command;
+
     public Format format;
     @Getter public static class Format {
         public String minecraft;

@@ -1,5 +1,7 @@
 package com.james090500.sdc.common.commands;
 
+import com.james090500.sdc.common.config.Configs;
+
 import java.util.UUID;
 
 public class CommandManager {
@@ -13,7 +15,7 @@ public class CommandManager {
      * @return
      */
     public String init(UUID uuid, String[] args) {
-        String defaultResponse = "This is the discord server discord.gg/capecraft TODO";
+        String defaultResponse = Configs.getSettingsConfig().getCommand();
         if(args.length >= 1 && uuid != null) {
             switch(args[0]) {
                 case "link":

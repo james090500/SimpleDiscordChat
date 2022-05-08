@@ -1,6 +1,7 @@
 package com.james090500.sdc.common.handlers;
 
-import com.james090500.sdc.common.SimpleDiscordChat;
+import com.james090500.sdc.common.config.Configs;
+import com.james090500.sdc.common.config.SQLHelper;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -14,12 +15,12 @@ public class LinkHandler {
      * @param user The author of the message
      * @param message The message contents (We already check if empty or bot before this)
      */
-    public void handle(User user, Message message) {
+    public static void handle(User user, Message message) {
         String code = message.getContentRaw();
         PrivateChannel channel = message.getPrivateChannel();
 
         //Ignore if linking is disabled
-        if(!SimpleDiscordChat.getInstance().getConfigs().getSettingsConfig().isLinking()) return;
+        if(!Configs.getSettingsConfig().isLinking()) return;
 
         //Check the code is correct length
         if(code.length() != 4) {
@@ -37,10 +38,10 @@ public class LinkHandler {
         }
 
         //Valid code
-        UUID uuid = SimpleDiscordChat.getInstance().getSqlHelper().checkCode(codeInt);
-        SimpleDiscordChat.getInstance().getSqlHelper().forgetPlayer(uuid);
+        UUID uuid = SQLHelper.checkCode(codeInt);
+        SQLHelper.forgetPlayer(uuid);
         if(uuid != null) {
-            SimpleDiscordChat.getInstance().getSqlHelper().updatePlayer(uuid, user.getId());
+            SQLHelper.updatePlayer(uuid, user.getId());
             String format = String.format("Hello %s, your discord account and minecraft account have been linked!", user.getName(), code);
             message.getPrivateChannel().sendMessage(format).queue();
         } else {
@@ -53,12 +54,12 @@ public class LinkHandler {
      * This feels really dumb but I can't think of a better way atm so... todo
      * @param uuid The players uuid
      */
-    public int generateCode(UUID uuid) {
+    public static int generateCode(UUID uuid) {
         int code = 0;
         boolean codeAddedToDatabase = false;
         while(!codeAddedToDatabase) {
             code = (int) (Math.random() * (9999 - 1000) + 1) + 1000;
-            codeAddedToDatabase = SimpleDiscordChat.getInstance().getSqlHelper().updateLinking(uuid, code);
+            codeAddedToDatabase = SQLHelper.updateLinking(uuid, code);
         }
         return code;
     }
@@ -67,7 +68,7 @@ public class LinkHandler {
      * Unlink a users discord and minecraft account
      * @param uuid The player uuid
      */
-    public void unlinkAccount(UUID uuid) {
-        SimpleDiscordChat.getInstance().getSqlHelper().updatePlayer(uuid, null);
+    public static void unlinkAccount(UUID uuid) {
+        SQLHelper.updatePlayer(uuid, null);
     }
 }
