@@ -7,12 +7,10 @@ import io.papermc.paper.text.PaperComponents;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import java.awt.*;
-import java.awt.print.Paper;
 import java.util.UUID;
 
 public class Server implements ServerInterface {
@@ -48,5 +46,10 @@ public class Server implements ServerInterface {
         } else {
             return placeholder;
         }
+    }
+
+    @Override
+    public void addBoostRank(UUID uuid, String groupName) {
+        SDCPaper.getInstance().getPerms().playerAddGroup(Bukkit.getPlayer(uuid), groupName);
     }
 }

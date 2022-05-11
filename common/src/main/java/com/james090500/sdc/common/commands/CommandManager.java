@@ -17,13 +17,15 @@ public class CommandManager {
     public String init(UUID uuid, String[] args) {
         String defaultResponse = Configs.getSettingsConfig().getCommand();
         if(args.length >= 1 && uuid != null) {
-            switch(args[0]) {
-                case "link":
-                    return linkingCommands.linkCommand(uuid);
-                case "unlink":
-                    return linkingCommands.unlinkCommand(uuid);
-                default:
-                    return defaultResponse;
+            if(Configs.getSettingsConfig().isLinking()) {
+                switch (args[0]) {
+                    case "link":
+                        return linkingCommands.linkCommand(uuid);
+                    case "unlink":
+                        return linkingCommands.unlinkCommand(uuid);
+                    default:
+                        return defaultResponse;
+                }
             }
         }
         return defaultResponse;

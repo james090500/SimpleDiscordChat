@@ -13,50 +13,85 @@ import java.util.UUID;
 
 public class SyncHandler {
 
+    private static Guild currentGuild = SimpleDiscordChat.getInstance().getChatChannel().getGuild();
+
     /**
-     * Runs the sync of groups, username etc
-     * @param uuid The uuid to sync
-     * @param username Their username/display name
-     * @param groupName Their primary group name
+     * Start checks for syncing username and groups
+     * @param uuid The Minecraft user to sync
+     * @param username The username to sync
+     * @param newGroupName The group to sync
      */
-    public static void doSync(UUID uuid, String username, String groupName) {
+    public static void doSync(UUID uuid, String username, String newGroupName) {
         new Thread(() -> {
-            //Initialise all needed variables
-            String discordUser;
-            String discordGroup = Configs.getSettingsConfig().getSyncing().getGroups().get(groupName);
+            //Check if syncing is enabled
+            if (Configs.getSettingsConfig().isSyncGroups() || Configs.getSettingsConfig().isSyncUsernames()) {
+                //Get SQL data
+                SQLHelper.UserInfo userInfo = SQLHelper.getPlayer(uuid);
+                if (userInfo == null) return;
 
-            //Get SQL data
-            SQLHelper.UserInfo userInfo = SQLHelper.getPlayer(uuid);
-            if(userInfo == null) return;
-            discordUser = userInfo.getDiscordSnowflake();
+                //Get the member and check if it can be edited
+                Member member = currentGuild.getMemberById(userInfo.getDiscordSnowflake());
+                if (member == null) return;
+                if (!currentGuild.getMember(SimpleDiscordChat.getInstance().getBot()).canInteract(member)) return;
 
-            //Remove all roles from the user that we sync
-            Guild currentGuild = SimpleDiscordChat.getInstance().getChatChannel().getGuild();
+                //Sync Groups
+                if (Configs.getSettingsConfig().isSyncGroups()) {
+                    doSyncGroups(member, uuid, newGroupName);
+                }
 
-            //Get the member and check if it can be edited
-            Member member = currentGuild.getMemberById(discordUser);
-            if(member == null) return;
-            if(!currentGuild.getMember(SimpleDiscordChat.getInstance().getBot()).canInteract(member)) return;
-
-            //All server roles
-            List<Role> rolesToAdd = new ArrayList<>();
-            List<Role> rolesToRemove = new ArrayList<>();
-
-            //Populate all roles (for removal)
-            Configs.getSettingsConfig().getSyncing().getGroups().forEach((name, snowflake) -> rolesToRemove.add(currentGuild.getRoleById(snowflake)));
-
-            //Get the roles to add and remove it from the roleToRemove
-            Role newRole = currentGuild.getRoleById(discordGroup);
-            rolesToAdd.add(newRole);
-            rolesToRemove.remove(newRole);
-
-            //Update the user
-            if(!member.getRoles().containsAll(rolesToAdd) || member.getRoles().containsAll(rolesToRemove) || !member.getNickname().equals(username)) {
-                SimpleDiscordChat.getInstance().getLogger().error("Updating member");
-                currentGuild.modifyMemberRoles(member, rolesToAdd, rolesToRemove).queue();
-                currentGuild.modifyNickname(member, username).queue();
+                //Sync usernames
+                if (Configs.getSettingsConfig().isSyncUsernames()) {
+                    doSyncUsername(member, username);
+                }
             }
         }).start();
+    }
+
+    /**
+     * Sync a users groups
+     * @param member The Discord member to sync
+     * @param uuid The Minecraft user to sync
+     * @param newGroupName The group to sync
+     */
+    private static void doSyncGroups(Member member, UUID uuid, String newGroupName) {
+        String discordGroup = Configs.getSettingsConfig().getSyncing().getGroups().get(newGroupName);
+
+        //All server roles
+        List<Role> rolesToAdd = new ArrayList<>();
+        List<Role> rolesToRemove = new ArrayList<>();
+
+        //Populate all roles (for removal)
+        Role boostRole = currentGuild.getBoostRole();
+        Configs.getSettingsConfig().getSyncing().getGroups().forEach((groupName, snowflake) -> {
+            if(boostRole.getId().equals(snowflake)) {
+                if(member.getRoles().contains(boostRole)) {
+                    SimpleDiscordChat.getInstance().getServerInterface().addBoostRank(uuid, groupName);
+                }
+            } else {
+                rolesToRemove.add(currentGuild.getRoleById(snowflake));
+            }
+        });
+
+        //Get the roles to add and remove it from the roleToRemove
+        Role newRole = currentGuild.getRoleById(discordGroup);
+        rolesToAdd.add(newRole);
+        rolesToRemove.remove(newRole);
+
+        //Update the user
+        if(!member.getRoles().containsAll(rolesToAdd) || member.getRoles().containsAll(rolesToRemove)) {
+            currentGuild.modifyMemberRoles(member, rolesToAdd, rolesToRemove).queue();
+        }
+    }
+
+    /**
+     * Sync a users username
+     * @param member The Discord member to sync
+     * @param username The username to sync
+     */
+    private static void doSyncUsername(Member member, String username) {
+        if(!member.getNickname().equals(username)) {
+            currentGuild.modifyNickname(member, username).queue();
+        }
     }
 
 }

@@ -2,6 +2,7 @@ package com.james090500.sdc.paper;
 
 import com.james090500.sdc.common.SimpleDiscordChat;
 import com.james090500.sdc.common.commands.CommandManager;
+import com.james090500.sdc.common.handlers.JoinLeaveHandler;
 import com.james090500.sdc.common.handlers.SyncHandler;
 import com.james090500.sdc.paper.listeners.AdvancementListener;
 import com.james090500.sdc.paper.listeners.ChatListener;
@@ -17,7 +18,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class SDCPaper extends JavaPlugin {
 
     @Getter private static SDCPaper instance;
-    private Permission perms;
+    @Getter private Permission perms;
 
     @Override
     public void onEnable() {
@@ -59,7 +60,7 @@ public class SDCPaper extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        Bukkit.getOnlinePlayers().forEach(player -> JoinLeaveListener.onLeave(player));
+        Bukkit.getOnlinePlayers().forEach(player -> JoinLeaveHandler.leave(player.getUniqueId()));
         SimpleDiscordChat.getInstance().onDisable();
     }
 }
