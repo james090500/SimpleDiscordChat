@@ -1,5 +1,6 @@
 package com.james090500.sdc.paper.listeners;
 
+import com.james090500.sdc.common.config.Configs;
 import com.james090500.sdc.common.handlers.AdvancementHandler;
 import io.papermc.paper.text.PaperComponents;
 import org.bukkit.entity.Player;
@@ -15,13 +16,15 @@ public class AdvancementListener implements Listener {
      */
     @EventHandler
     public void onAdvancement(PlayerAdvancementDoneEvent event) {
-        //Get the player
-        Player player = event.getPlayer();
+        if(Configs.getSettingsConfig().getAdvancement().isEnabled()) {
+            //Get the player
+            Player player = event.getPlayer();
 
-        //Set the variables
-        String advancement = PaperComponents.plainTextSerializer().serialize(event.getAdvancement().getDisplay().title());
+            //Set the variables
+            String advancement = PaperComponents.plainTextSerializer().serialize(event.getAdvancement().getDisplay().title());
 
-        //Send to discord
-        AdvancementHandler.send(player.getUniqueId(), advancement);
+            //Send to discord
+            AdvancementHandler.send(player.getUniqueId(), advancement);
+        }
     }
 }
