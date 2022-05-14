@@ -1,4 +1,4 @@
-package com.james090500.sdc.paper.listeners;
+package com.james090500.sdc.velocity.listeners;
 
 import com.james090500.sdc.common.SimpleDiscordChat;
 import com.james090500.sdc.common.config.Configs;
