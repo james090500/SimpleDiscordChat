@@ -1,38 +1,54 @@
 package com.james090500.sdc.common.config;
 
 import com.james090500.sdc.common.SimpleDiscordChat;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import javax.annotation.Nullable;
-import java.io.File;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.UUID;
 
 public class SQLHelper {
 
-    private static Connection connection;
+
+    private static final HikariConfig config = new HikariConfig();
+    private static final HikariDataSource ds;
+
     private static HashMap<UUID, UserInfo> userCache = new HashMap<>();
 
     static {
-        File sqlFile = new File(SimpleDiscordChat.getInstance().getDataFolder(), "users.db");
-        try {
-            connection = DriverManager.getConnection("jdbc:sqlite:" + sqlFile.getAbsolutePath());
-            if(connection == null) {
-                SimpleDiscordChat.getInstance().getLogger().error("Failed to connect to SQLite database. The plugin will now disable");
-            } else {
-                String createUsersTable = "CREATE TABLE IF not EXISTS users (id integer PRIMARY KEY,uuid VARCHAR(36) NOT NULL,discord_snowflake VARCHAR(36) NULL)";
-                String createLinkingTable = "CREATE TABLE IF not EXISTS linking (id integer PRIMARY KEY,uuid VARCHAR(36) NOT NULL,code VARCHAR(4) UNIQUE, created_at VARCHAR(10) NOT NULL)";
+        config.setPoolName("SimpleDiscordChat");
+        config.setConnectionTestQuery("SELECT 1");
 
-                //Statement
-                Statement statement = connection.createStatement();
-                statement.execute(createUsersTable);
-                statement.execute(createLinkingTable);
-            }
-        } catch(SQLException e) {
-            e.printStackTrace();
+        if(Configs.getSettingsConfig().getJdbc().isEnabled()) {
+            config.setUsername(Configs.getSettingsConfig().getJdbc().getUsername());
+            config.setPassword(Configs.getSettingsConfig().getJdbc().getPassword());
+            config.addDataSourceProperty( "cachePrepStmts" , "true" );
+            config.addDataSourceProperty( "prepStmtCacheSize" , "250" );
+            config.addDataSourceProperty( "prepStmtCacheSqlLimit" , "2048" );
+        } else {
+            config.setDriverClassName("org.sqlite.JDBC");
+            config.setJdbcUrl("jdbc:sqlite:" + SimpleDiscordChat.getInstance().getDataFolder() + "/users.db");
+            config.setMaxLifetime(60000);
+            config.setIdleTimeout(45000);
+            config.setMaximumPoolSize(50);
         }
+
+        ds = new HikariDataSource(config);
+    }
+
+    /**
+     * Get the SQL connection
+     * @return
+     */
+    private static Connection getConnection() throws SQLException {
+        return ds.getConnection();
     }
 
     /**
@@ -47,7 +63,7 @@ public class SQLHelper {
 
         try {
             //Prepare an SQL Statement and then execute it
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM users WHERE uuid = ?");
+            PreparedStatement preparedStatement = getConnection().prepareStatement("SELECT * FROM users WHERE uuid = ?");
             preparedStatement.setString(1, uuid.toString());
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -73,15 +89,15 @@ public class SQLHelper {
         forgetPlayer(uuid);
         try {
             //Remove duplicates
-            PreparedStatement deleteOldPlayer = connection.prepareStatement("DELETE FROM users WHERE uuid = ?");
+            PreparedStatement deleteOldPlayer = getConnection().prepareStatement("DELETE FROM users WHERE uuid = ?");
             deleteOldPlayer.setString(1, uuid.toString());
             deleteOldPlayer.execute();
-            PreparedStatement deleteOldDiscord = connection.prepareStatement("DELETE FROM users WHERE discord_snowflake = ?");
+            PreparedStatement deleteOldDiscord = getConnection().prepareStatement("DELETE FROM users WHERE discord_snowflake = ?");
             deleteOldDiscord.setString(1, discordSnowflake);
             deleteOldDiscord.execute();
 
             //Insert
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO users (uuid, discord_snowflake) VALUES(?,?)");
+            PreparedStatement preparedStatement = getConnection().prepareStatement("INSERT INTO users (uuid, discord_snowflake) VALUES(?,?)");
             preparedStatement.setString(1, uuid.toString());
             preparedStatement.setString(2, discordSnowflake);
 
@@ -113,7 +129,7 @@ public class SQLHelper {
         long currentTime = System.currentTimeMillis() / 1000;
         try {
             //Prepare an SQL Statement and then execute it
-            PreparedStatement checkCodeStatement = connection.prepareStatement("SELECT * FROM linking WHERE code = ?");
+            PreparedStatement checkCodeStatement = getConnection().prepareStatement("SELECT * FROM linking WHERE code = ?");
             checkCodeStatement.setString(1, String.valueOf(code));
             ResultSet resultSet = checkCodeStatement.executeQuery();
 
@@ -121,7 +137,7 @@ public class SQLHelper {
             while(resultSet.next()) {
                 long createdAt = Long.parseLong(resultSet.getString(3));
                 if((currentTime - createdAt) > 300) {
-                    PreparedStatement deleteOldCode = connection.prepareStatement("DELETE FROM linking WHERE code = ?");
+                    PreparedStatement deleteOldCode = getConnection().prepareStatement("DELETE FROM linking WHERE code = ?");
                     deleteOldCode.setString(1, String.valueOf(code));
                     deleteOldCode.execute();
                 } else {
@@ -130,12 +146,12 @@ public class SQLHelper {
             }
 
             //Remove all old codes
-            PreparedStatement deletePreviousLinks = connection.prepareStatement("DELETE FROM linking WHERE uuid = ?");
+            PreparedStatement deletePreviousLinks = getConnection().prepareStatement("DELETE FROM linking WHERE uuid = ?");
             deletePreviousLinks.setString(1, uuid.toString());
             deletePreviousLinks.execute();
 
             //Insert the code
-            PreparedStatement insertCodeStatement = connection.prepareStatement("INSERT INTO linking (uuid,code,created_at) VALUES (?,?,?)");
+            PreparedStatement insertCodeStatement = getConnection().prepareStatement("INSERT INTO linking (uuid,code,created_at) VALUES (?,?,?)");
             insertCodeStatement.setString(1, uuid.toString());
             insertCodeStatement.setString(2, String.valueOf(code));
             insertCodeStatement.setString(3, String.valueOf(currentTime));
@@ -156,14 +172,14 @@ public class SQLHelper {
     public static UUID checkCode(int code) {
         try {
             //Prepare an SQL Statement and then execute it
-            PreparedStatement checkCodeStatement = connection.prepareStatement("SELECT * FROM linking WHERE code = ?");
+            PreparedStatement checkCodeStatement = getConnection().prepareStatement("SELECT * FROM linking WHERE code = ?");
             checkCodeStatement.setString(1, String.valueOf(code));
             ResultSet resultSet = checkCodeStatement.executeQuery();
 
             //Check results aren't empty
             while (resultSet.next()) {
                 //Remove old codes
-                PreparedStatement deletePreviousLinks = connection.prepareStatement("DELETE FROM linking WHERE code = ?");
+                PreparedStatement deletePreviousLinks = getConnection().prepareStatement("DELETE FROM linking WHERE code = ?");
                 deletePreviousLinks.setString(1, String.valueOf(code));
                 deletePreviousLinks.execute();
 
@@ -180,7 +196,7 @@ public class SQLHelper {
      */
     public static void close() {
         try {
-            connection.close();
+            getConnection().close();
         } catch (SQLException e) {
             e.printStackTrace();
         }

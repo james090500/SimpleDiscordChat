@@ -10,6 +10,14 @@ public class SettingsConfig {
     public String botToken;
     public String chatChannel;
 
+    public JDBC jdbc;
+    @Getter public static class JDBC {
+        public boolean enabled;
+        public String url;
+        public String username;
+        public String password;
+    }
+
     public String command;
 
     public Format format;

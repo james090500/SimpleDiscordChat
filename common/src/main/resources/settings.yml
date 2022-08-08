@@ -4,6 +4,14 @@ botToken: ""
 # The channel of the bot
 chatChannel: ""
 
+## SQL Settings
+# If JDBC is disabled then a local SQLite file will be used
+jdbc:
+  enabled: false
+  url: ""
+  username: ""
+  password: ""
+
 ## Commands
 # The /discord command message
 command: "&aThis is the discord server https://discord.gg/capecraft"
