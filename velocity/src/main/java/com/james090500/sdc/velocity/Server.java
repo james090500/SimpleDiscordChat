@@ -3,12 +3,8 @@ package com.james090500.sdc.velocity;
 import com.james090500.sdc.common.SimpleDiscordChat;
 import com.james090500.sdc.common.api.ServerInterface;
 import com.james090500.sdc.common.config.Configs;
-import io.papermc.paper.text.PaperComponents;
-import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 
 import java.awt.*;
 import java.util.UUID;
@@ -33,23 +29,17 @@ public class Server implements ServerInterface {
 
         //The final chat message
         Component finalMessage = LegacyComponentSerializer.legacyAmpersand().deserialize(chatFormat);
-        Bukkit.getServer().sendMessage(finalMessage);
+
+        SDCVelocity.getInstance().getServer().sendMessage(finalMessage);
     }
 
     @Override
     public String parsePlaceholders(UUID uuid, String message, boolean clean) {
-        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
-        String placeholder = PlaceholderAPI.setPlaceholders(offlinePlayer, message);
-        if(clean) {
-            Component component = LegacyComponentSerializer.legacySection().deserialize(placeholder);
-            return PaperComponents.plainTextSerializer().serialize(component);
-        } else {
-            return placeholder;
-        }
+        return message;
     }
 
     @Override
     public void addBoostRank(UUID uuid, String groupName) {
-        SDCPaper.getInstance().getPerms().playerAddGroup(Bukkit.getPlayer(uuid), groupName);
+        //SDCPaper.getInstance().getPerms().playerAddGroup(Bukkit.getPlayer(uuid), groupName); TODO
     }
 }

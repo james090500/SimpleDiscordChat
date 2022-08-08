@@ -3,25 +3,22 @@ package com.james090500.sdc.velocity.listeners;
 import com.james090500.sdc.common.SimpleDiscordChat;
 import com.james090500.sdc.common.config.Configs;
 import com.james090500.sdc.common.handlers.ChatHandler;
-import io.papermc.paper.event.player.AsyncChatEvent;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.player.PlayerChatEvent;
 
-public class ChatListener implements Listener {
+public class ChatListener {
 
     /**
      * Runs when a user sends a chat message
      * @param event
      */
-    @EventHandler
-    public void onChatEvent(AsyncChatEvent event) {
+    @Subscribe
+    public void onChatEvent(PlayerChatEvent event) {
         //Chat Format
         String chatFormat = Configs.getSettingsConfig().getFormat().getDiscord();
 
         //Fill placeholders
-        String chatMessage = PlainTextComponentSerializer.plainText().serialize(event.message());
-        chatFormat = chatFormat.replaceAll("%message%", chatMessage);
+        chatFormat = chatFormat.replaceAll("%message%", event.getMessage());
         chatFormat = SimpleDiscordChat.getInstance().getServerInterface().parsePlaceholders(event.getPlayer().getUniqueId(), chatFormat, true);
 
         //Send to discord

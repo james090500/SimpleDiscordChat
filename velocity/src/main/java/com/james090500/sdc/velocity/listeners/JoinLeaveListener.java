@@ -1,19 +1,18 @@
 package com.james090500.sdc.velocity.listeners;
 
 import com.james090500.sdc.common.handlers.JoinLeaveHandler;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.connection.DisconnectEvent;
+import com.velocitypowered.api.event.connection.PostLoginEvent;
 
-public class JoinLeaveListener implements Listener {
+public class JoinLeaveListener {
 
     /**
      * The listener that runs on join
      * @param event The join event
      */
-    @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
+    @Subscribe
+    public void onJoin(PostLoginEvent event) {
         JoinLeaveHandler.join(event.getPlayer().getUniqueId());
     }
 
@@ -21,8 +20,8 @@ public class JoinLeaveListener implements Listener {
      * The listener that runs on leave
      * @param event The leave event
      */
-    @EventHandler
-    public void onLeave(PlayerQuitEvent event) {
+    @Subscribe
+    public void onLeave(DisconnectEvent event) {
         JoinLeaveHandler.leave(event.getPlayer().getUniqueId());
     }
 }
