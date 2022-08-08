@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: wget
-        uses: wei/wget@v1
-        with:
+      - uses: wei/wget@v1
+      - with:
           args: -P libs/ https://github.com/kangarko/VelocityControl/releases/download/3.10.0/VelocityControl-3.10.0.jar
       - uses: actions/checkout@v3
       - name: Set up JDK 17
