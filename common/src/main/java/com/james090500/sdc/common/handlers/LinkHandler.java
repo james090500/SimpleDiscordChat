@@ -1,5 +1,6 @@
 package com.james090500.sdc.common.handlers;
 
+import com.james090500.sdc.common.api.SDCPlayer;
 import com.james090500.sdc.common.config.Configs;
 import com.james090500.sdc.common.config.SQLHelper;
 import net.dv8tion.jda.api.entities.Message;
@@ -33,15 +34,16 @@ public class LinkHandler {
         try {
             codeInt = Integer.parseInt(code);
         } catch(NumberFormatException e) {
-            channel.sendMessage("That code is incorrect, please double check and try again.").queue();;
+            channel.sendMessage("That code is incorrect, please double check and try again.").queue();
             return;
         }
 
         //Valid code
         UUID uuid = SQLHelper.checkCode(codeInt);
-        SQLHelper.forgetPlayer(uuid);
         if(uuid != null) {
-            SQLHelper.updatePlayer(uuid, user.getId());
+            SDCPlayer sdcPlayer = SDCPlayer.get(uuid);
+            sdcPlayer.setDiscordSnowflake(user.getId());
+            SQLHelper.updatePlayer(sdcPlayer);
             String format = String.format("Hello %s, your discord account and minecraft account have been linked!", user.getName(), code);
             message.getChannel().asPrivateChannel().sendMessage(format).queue();
         } else {
@@ -69,6 +71,8 @@ public class LinkHandler {
      * @param uuid The player uuid
      */
     public static void unlinkAccount(UUID uuid) {
-        SQLHelper.updatePlayer(uuid, null);
+        SDCPlayer sdcPlayer = SDCPlayer.get(uuid);
+        sdcPlayer.setDiscordSnowflake(null);
+        SQLHelper.updatePlayer(sdcPlayer);
     }
 }

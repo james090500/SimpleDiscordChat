@@ -1,17 +1,13 @@
 package com.james090500.sdc.velocity;
 
-import com.james090500.sdc.common.SimpleDiscordChat;
+import com.james090500.sdc.common.api.SDCPlayer;
 import com.james090500.sdc.common.api.ServerInterface;
 import com.james090500.sdc.common.config.Configs;
-import com.james090500.sdc.velocity.helpers.ChatControlHelper;
-import com.velocitypowered.api.proxy.Player;
-import com.velocitypowered.api.proxy.player.TabListEntry;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import java.awt.*;
-import java.util.Optional;
 import java.util.UUID;
 
 public class Server implements ServerInterface {
@@ -35,16 +31,12 @@ public class Server implements ServerInterface {
     }
 
     @Override
-    public String parsePlaceholders(UUID uuid, String message, boolean clean) {
-        Optional<Player> optionalPlayer = SDCVelocity.getInstance().getServer().getPlayer(uuid);
-        if(!optionalPlayer.isPresent()) return "";
-
-        Player player = optionalPlayer.get();
-        String primaryGroup = SDCVelocity.getInstance().getLuckPermsApi().getUserManager().getUser(player.getUniqueId()).getPrimaryGroup();
+    public String parsePlaceholders(SDCPlayer sdcPlayer, String message, boolean clean) {
+        String primaryGroup = SDCVelocity.getInstance().getLuckPermsApi().getUserManager().loadUser(sdcPlayer.getUuid()).join().getPrimaryGroup();
 
         String placeholder = message;
-        placeholder = placeholder.replaceAll("%player_name%", player.getGameProfile().getName());
-        placeholder = placeholder.replaceAll("%player_displayname%", ChatControlHelper.getNick(player));
+        placeholder = placeholder.replaceAll("%player_name%", sdcPlayer.getUsername());
+        placeholder = placeholder.replaceAll("%player_displayname%", sdcPlayer.getDisplayName());
         placeholder = placeholder.replaceAll("%player_group%", primaryGroup);
 
         if(clean) {

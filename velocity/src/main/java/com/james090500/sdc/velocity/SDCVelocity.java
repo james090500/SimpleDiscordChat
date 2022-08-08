@@ -2,9 +2,11 @@ package com.james090500.sdc.velocity;
 
 import com.google.inject.Inject;
 import com.james090500.sdc.common.SimpleDiscordChat;
+import com.james090500.sdc.common.api.SDCPlayer;
 import com.james090500.sdc.common.commands.CommandManager;
 import com.james090500.sdc.common.handlers.JoinLeaveHandler;
 import com.james090500.sdc.common.handlers.SyncHandler;
+import com.james090500.sdc.velocity.helpers.ChatControlHelper;
 import com.james090500.sdc.velocity.listeners.ChatListener;
 import com.james090500.sdc.velocity.listeners.JoinLeaveListener;
 import com.velocitypowered.api.command.SimpleCommand;
@@ -68,16 +70,17 @@ public class SDCVelocity {
 
         //Syncs
         server.getScheduler().buildTask(this, () -> server.getAllPlayers().forEach(player -> {
-                String displayName = player.getUsername();
+                SDCPlayer sdcPlayer = SDCPlayer.get(player.getUniqueId());
+                sdcPlayer.setDisplayName(ChatControlHelper.getNick(player.getUsername()));
                 String primaryGroup = getLuckPermsApi().getUserManager().getUser(player.getUniqueId()).getPrimaryGroup();
-                SyncHandler.doSync(player.getUniqueId(), displayName, primaryGroup);
+                SyncHandler.doSync(sdcPlayer, primaryGroup);
             }
         )).repeat(5, TimeUnit.MINUTES).schedule();
     }
 
     @Subscribe
     public void onProxyShutdown(ProxyShutdownEvent event) {
-        server.getAllPlayers().forEach(player -> JoinLeaveHandler.leave(player.getUniqueId()));
+        server.getAllPlayers().forEach(player -> JoinLeaveHandler.leave(SDCPlayer.get(player.getUniqueId())));
         SimpleDiscordChat.getInstance().onDisable();
     }
 }

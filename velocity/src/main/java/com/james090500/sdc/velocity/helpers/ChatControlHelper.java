@@ -1,21 +1,21 @@
 package com.james090500.sdc.velocity.helpers;
-import com.velocitypowered.api.proxy.Player;
+
 import org.mineacademy.velocitycontrol.SyncedCache;
 
 public class ChatControlHelper {
 
     /**
      * Tries to get the nickname for a player from ChatControl
-     * @param player The player in question
+     * @param username The player in question
      * @return
      */
-    public static String getNick(Player player) {
+    public static String getNick(String username) {
         if(!doesClassExist("org.mineacademy.velocitycontrol.SyncedCache")) {
-            return null;
+            return username;
         }
 
-        String nickname = SyncedCache.fromName(player.getUsername()).getNick();
-        return nickname != null ? nickname : player.getUsername();
+        SyncedCache syncedCache = SyncedCache.fromName(username);
+        return syncedCache != null ? syncedCache.getNick() : username;
     }
 
     /**

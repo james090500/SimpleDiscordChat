@@ -1,6 +1,7 @@
 package com.james090500.sdc.common.handlers;
 
 import com.james090500.sdc.common.SimpleDiscordChat;
+import com.james090500.sdc.common.api.SDCPlayer;
 import com.james090500.sdc.common.config.Configs;
 import com.james090500.sdc.common.config.SQLHelper;
 import net.dv8tion.jda.api.entities.Guild;
@@ -17,31 +18,30 @@ public class SyncHandler {
 
     /**
      * Start checks for syncing username and groups
-     * @param uuid The Minecraft user to sync
-     * @param username The username to sync
+     * @param sdcPlayer The Minecraft user to sync
      * @param newGroupName The group to sync
      */
-    public static void doSync(UUID uuid, String username, String newGroupName) {
+    public static void doSync(SDCPlayer sdcPlayer, String newGroupName) {
         new Thread(() -> {
             //Check if syncing is enabled
             if (Configs.getSettingsConfig().isSyncGroups() || Configs.getSettingsConfig().isSyncUsernames()) {
                 //Get SQL data
-                SQLHelper.UserInfo userInfo = SQLHelper.getPlayer(uuid);
-                if (userInfo == null || userInfo.getDiscordSnowflake() == null) return;
+                SDCPlayer newSdcPlayer = SQLHelper.getPlayer(sdcPlayer);
+                if (newSdcPlayer == null || newSdcPlayer.getDiscordSnowflake() == null) return;
 
                 //Get the member and check if it can be edited
-                Member member = currentGuild.getMemberById(userInfo.getDiscordSnowflake());
+                Member member = currentGuild.getMemberById(newSdcPlayer.getDiscordSnowflake());
                 if (member == null) return;
                 if (!currentGuild.getMember(SimpleDiscordChat.getInstance().getBot()).canInteract(member)) return;
 
                 //Sync Groups
                 if (Configs.getSettingsConfig().isSyncGroups()) {
-                    doSyncGroups(member, uuid, newGroupName);
+                    doSyncGroups(member, newSdcPlayer.getUuid(), newGroupName);
                 }
 
                 //Sync usernames
                 if (Configs.getSettingsConfig().isSyncUsernames()) {
-                    doSyncUsername(member, username);
+                    doSyncUsername(member, newSdcPlayer.getDisplayName());
                 }
             }
         }).start();

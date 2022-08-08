@@ -1,6 +1,7 @@
 package com.james090500.sdc.paper;
 
 import com.james090500.sdc.common.SimpleDiscordChat;
+import com.james090500.sdc.common.api.SDCPlayer;
 import com.james090500.sdc.common.commands.CommandManager;
 import com.james090500.sdc.common.handlers.JoinLeaveHandler;
 import com.james090500.sdc.common.handlers.SyncHandler;
@@ -53,14 +54,16 @@ public class SDCPaper extends JavaPlugin {
         long fiveMin = (20L * 60 * 5);
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> Bukkit.getOnlinePlayers().forEach(player -> {
                 String displayName = PlainTextComponentSerializer.plainText().serialize(player.displayName());
-                SyncHandler.doSync(player.getUniqueId(), displayName, perms.getPrimaryGroup(player));
+                SDCPlayer sdcPlayer = SDCPlayer.get(player.getUniqueId());
+                sdcPlayer.setDisplayName(displayName);
+                SyncHandler.doSync(sdcPlayer, perms.getPrimaryGroup(player));
             }
         ), fiveMin, fiveMin);
     }
 
     @Override
     public void onDisable() {
-        Bukkit.getOnlinePlayers().forEach(player -> JoinLeaveHandler.leave(player.getUniqueId()));
+        Bukkit.getOnlinePlayers().forEach(player -> JoinLeaveHandler.leave(SDCPlayer.get(player.getUniqueId())));
         SimpleDiscordChat.getInstance().onDisable();
     }
 }

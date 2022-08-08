@@ -1,5 +1,6 @@
 package com.james090500.sdc.velocity.listeners;
 
+import com.james090500.sdc.common.api.SDCPlayer;
 import com.james090500.sdc.common.handlers.JoinLeaveHandler;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
@@ -13,7 +14,7 @@ public class JoinLeaveListener {
      */
     @Subscribe
     public void onJoin(PostLoginEvent event) {
-        JoinLeaveHandler.join(event.getPlayer().getUniqueId());
+        JoinLeaveHandler.join(new SDCPlayer(event.getPlayer().getUniqueId(), event.getPlayer().getUsername()));
     }
 
     /**
@@ -22,6 +23,6 @@ public class JoinLeaveListener {
      */
     @Subscribe
     public void onLeave(DisconnectEvent event) {
-        JoinLeaveHandler.leave(event.getPlayer().getUniqueId());
+        JoinLeaveHandler.leave(SDCPlayer.get(event.getPlayer().getUniqueId()));
     }
 }

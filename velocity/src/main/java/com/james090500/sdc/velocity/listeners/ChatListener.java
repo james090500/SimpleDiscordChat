@@ -1,6 +1,7 @@
 package com.james090500.sdc.velocity.listeners;
 
 import com.james090500.sdc.common.SimpleDiscordChat;
+import com.james090500.sdc.common.api.SDCPlayer;
 import com.james090500.sdc.common.config.Configs;
 import com.james090500.sdc.common.handlers.ChatHandler;
 import com.velocitypowered.api.event.Subscribe;
@@ -19,7 +20,7 @@ public class ChatListener {
 
         //Fill placeholders
         chatFormat = chatFormat.replaceAll("%message%", event.getMessage());
-        chatFormat = SimpleDiscordChat.getInstance().getServerInterface().parsePlaceholders(event.getPlayer().getUniqueId(), chatFormat, true);
+        chatFormat = SimpleDiscordChat.getInstance().getServerInterface().parsePlaceholders(SDCPlayer.get(event.getPlayer().getUniqueId()), chatFormat, true);
 
         //Send to discord
         ChatHandler.sendMessage(chatFormat);

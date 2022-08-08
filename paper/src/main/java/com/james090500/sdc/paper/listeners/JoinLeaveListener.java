@@ -1,5 +1,6 @@
 package com.james090500.sdc.paper.listeners;
 
+import com.james090500.sdc.common.api.SDCPlayer;
 import com.james090500.sdc.common.handlers.JoinLeaveHandler;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -14,7 +15,7 @@ public class JoinLeaveListener implements Listener {
      */
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        JoinLeaveHandler.join(event.getPlayer().getUniqueId());
+        JoinLeaveHandler.join(new SDCPlayer(event.getPlayer().getUniqueId(), event.getPlayer().getName()));
     }
 
     /**
@@ -23,6 +24,6 @@ public class JoinLeaveListener implements Listener {
      */
     @EventHandler
     public void onLeave(PlayerQuitEvent event) {
-        JoinLeaveHandler.leave(event.getPlayer().getUniqueId());
+        JoinLeaveHandler.leave(SDCPlayer.get(event.getPlayer().getUniqueId()));
     }
 }

@@ -1,6 +1,7 @@
 package com.james090500.sdc.paper;
 
 import com.james090500.sdc.common.SimpleDiscordChat;
+import com.james090500.sdc.common.api.SDCPlayer;
 import com.james090500.sdc.common.api.ServerInterface;
 import com.james090500.sdc.common.config.Configs;
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -35,8 +36,8 @@ public class Server implements ServerInterface {
     }
 
     @Override
-    public String parsePlaceholders(UUID uuid, String message, boolean clean) {
-        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
+    public String parsePlaceholders(SDCPlayer sdcPlayer, String message, boolean clean) {
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(sdcPlayer.getUuid());
         String placeholder = PlaceholderAPI.setPlaceholders(offlinePlayer, message);
         if(clean) {
             Component component = LegacyComponentSerializer.legacySection().deserialize(placeholder);
