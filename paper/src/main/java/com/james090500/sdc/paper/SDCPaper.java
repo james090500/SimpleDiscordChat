@@ -1,12 +1,12 @@
-package com.james090500.sdc.velocity;
+package com.james090500.sdc.paper;
 
 import com.james090500.sdc.common.SimpleDiscordChat;
 import com.james090500.sdc.common.commands.CommandManager;
 import com.james090500.sdc.common.handlers.JoinLeaveHandler;
 import com.james090500.sdc.common.handlers.SyncHandler;
-import com.james090500.sdc.velocity.listeners.AdvancementListener;
-import com.james090500.sdc.velocity.listeners.ChatListener;
-import com.james090500.sdc.velocity.listeners.JoinLeaveListener;
+import com.james090500.sdc.paper.listeners.AdvancementListener;
+import com.james090500.sdc.paper.listeners.ChatListener;
+import com.james090500.sdc.paper.listeners.JoinLeaveListener;
 import lombok.Getter;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;

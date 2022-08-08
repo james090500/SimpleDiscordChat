@@ -1,11 +1,17 @@
 plugins {
     id "java"
+    id "com.github.johnrengelman.shadow" version "7.0.0"
 }
 
 group "com.james090500.sdc"
 version "0.0.1-SNAPSHOT"
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     implementation project(":common")
     implementation project(":paper")
+    implementation project(":velocity")
 }

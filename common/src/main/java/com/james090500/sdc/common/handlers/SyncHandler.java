@@ -27,7 +27,7 @@ public class SyncHandler {
             if (Configs.getSettingsConfig().isSyncGroups() || Configs.getSettingsConfig().isSyncUsernames()) {
                 //Get SQL data
                 SQLHelper.UserInfo userInfo = SQLHelper.getPlayer(uuid);
-                if (userInfo == null) return;
+                if (userInfo == null || userInfo.getDiscordSnowflake() == null) return;
 
                 //Get the member and check if it can be edited
                 Member member = currentGuild.getMemberById(userInfo.getDiscordSnowflake());

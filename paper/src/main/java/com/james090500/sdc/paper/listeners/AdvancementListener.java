@@ -1,8 +1,8 @@
-package com.james090500.sdc.velocity.listeners;
+package com.james090500.sdc.paper.listeners;
 
 import com.james090500.sdc.common.config.Configs;
 import com.james090500.sdc.common.handlers.AdvancementHandler;
-import io.papermc.paper.text.PaperComponents;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -21,7 +21,7 @@ public class AdvancementListener implements Listener {
             Player player = event.getPlayer();
 
             //Set the variables
-            String advancement = PaperComponents.plainTextSerializer().serialize(event.getAdvancement().getDisplay().title());
+            String advancement = PlainTextComponentSerializer.plainText().serialize(event.getAdvancement().getDisplay().title());
 
             //Send to discord
             AdvancementHandler.send(player.getUniqueId(), advancement);

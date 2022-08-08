@@ -17,7 +17,7 @@ public class LinkHandler {
      */
     public static void handle(User user, Message message) {
         String code = message.getContentRaw();
-        PrivateChannel channel = message.getPrivateChannel();
+        PrivateChannel channel = message.getChannel().asPrivateChannel();
 
         //Ignore if linking is disabled
         if(!Configs.getSettingsConfig().isLinking()) return;
@@ -43,7 +43,7 @@ public class LinkHandler {
         if(uuid != null) {
             SQLHelper.updatePlayer(uuid, user.getId());
             String format = String.format("Hello %s, your discord account and minecraft account have been linked!", user.getName(), code);
-            message.getPrivateChannel().sendMessage(format).queue();
+            message.getChannel().asPrivateChannel().sendMessage(format).queue();
         } else {
             channel.sendMessage("That code is incorrect, please double check and try again.").queue();
         }

@@ -1,12 +1,12 @@
-package com.james090500.sdc.velocity;
+package com.james090500.sdc.paper;
 
 import com.james090500.sdc.common.SimpleDiscordChat;
 import com.james090500.sdc.common.api.ServerInterface;
 import com.james090500.sdc.common.config.Configs;
-import io.papermc.paper.text.PaperComponents;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
@@ -19,8 +19,6 @@ public class Server implements ServerInterface {
     public void onDiscordMessage(Color roleColor, String roleName, String username, String message) {
         //Chat Format
         String chatFormat = Configs.getSettingsConfig().getFormat().getMinecraft();
-
-        SimpleDiscordChat.getInstance().getLogger().error(chatFormat);
 
         //Set the variables
         String hexColor = String.format("#%02x%02x%02x", roleColor.getRed(), roleColor.getGreen(), roleColor.getBlue());
@@ -42,7 +40,7 @@ public class Server implements ServerInterface {
         String placeholder = PlaceholderAPI.setPlaceholders(offlinePlayer, message);
         if(clean) {
             Component component = LegacyComponentSerializer.legacySection().deserialize(placeholder);
-            return PaperComponents.plainTextSerializer().serialize(component);
+            return PlainTextComponentSerializer.plainText().serialize(component);
         } else {
             return placeholder;
         }

@@ -1,4 +1,4 @@
-package com.james090500.sdc.velocity.listeners;
+package com.james090500.sdc.paper.listeners;
 
 import com.james090500.sdc.common.handlers.JoinLeaveHandler;
 import org.bukkit.event.EventHandler;

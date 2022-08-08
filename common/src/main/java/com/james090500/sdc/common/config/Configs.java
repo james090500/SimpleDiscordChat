@@ -24,7 +24,7 @@ public class Configs {
         //Copy default config if it doesn't exist
         File configFile = new File(pluginFolder, "settings.yml");
         if (!configFile.exists()) {
-            try (InputStream in = SimpleDiscordChat.getInstance().getClass().getResourceAsStream("settings.yml")) {
+            try (InputStream in = SimpleDiscordChat.class.getResourceAsStream("/settings.yml")) {
                 Files.copy(in, configFile.toPath());
             } catch (IOException e) {
                 e.printStackTrace();

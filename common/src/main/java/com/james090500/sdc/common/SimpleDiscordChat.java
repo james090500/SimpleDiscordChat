@@ -37,14 +37,16 @@ public class SimpleDiscordChat {
     private final EnumSet<GatewayIntent> activeIntents = EnumSet.of(
         GatewayIntent.GUILD_MESSAGES,
         GatewayIntent.DIRECT_MESSAGES,
-        GatewayIntent.GUILD_MEMBERS
+        GatewayIntent.GUILD_MEMBERS,
+        GatewayIntent.MESSAGE_CONTENT
     );
 
     //Disabled caches
     private final EnumSet<CacheFlag> disabledCache = EnumSet.of(
             CacheFlag.ACTIVITY,
             CacheFlag.VOICE_STATE,
-            CacheFlag.EMOTE,
+            CacheFlag.EMOJI,
+            CacheFlag.STICKER,
             CacheFlag.CLIENT_STATUS,
             CacheFlag.ONLINE_STATUS
     );

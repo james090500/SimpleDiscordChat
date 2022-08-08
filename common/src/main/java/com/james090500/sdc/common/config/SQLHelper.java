@@ -41,6 +41,16 @@ public class SQLHelper {
         }
 
         ds = new HikariDataSource(config);
+
+        try {
+            String createUsersTable = "CREATE TABLE IF not EXISTS users (id integer PRIMARY KEY,uuid VARCHAR(36) NOT NULL,discord_snowflake VARCHAR(36) NULL)";
+            String createLinkingTable = "CREATE TABLE IF not EXISTS linking (id integer PRIMARY KEY,uuid VARCHAR(36) NOT NULL,code VARCHAR(4) UNIQUE, created_at VARCHAR(10) NOT NULL)";
+
+            getConnection().prepareStatement(createUsersTable).execute();
+            getConnection().prepareStatement(createLinkingTable).execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
